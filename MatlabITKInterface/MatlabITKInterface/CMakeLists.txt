@@ -1,0 +1,6 @@
+set(MatlabITKInterface_Headers
+	${CMAKE_CURRENT_SOURCE_DIR}/MexMessageWrapper.h
+	${CMAKE_CURRENT_SOURCE_DIR}/mxIO.h
+	${CMAKE_CURRENT_SOURCE_DIR}/mxIO.hxx
+	PARENT_SCOPE
+	)
