@@ -62,6 +62,21 @@ struct Array : public std::vector<TComponent> {
         result[Dimension-1]=n;
         return result;
     }
+    
+    template<typename F> auto
+    Transform(const F & f) const -> Array<decltype(f(this->operator[](0))),VDim,TDiscrete>  {
+        typedef decltype(f(this->operator[](0))) TC;
+        Array<TC,VDim,TDiscrete> result;
+        result.dims = dims;
+        result.resize(this->size());
+        std::transform(this->begin(),this->end(),result.begin(),f);
+        return result;
+    }
+    
+    template<typename TC> Array<TC,VDim,TDiscrete> Cast() const {
+        auto caster = [](const TComponent & a)->TC{return TC(a);};
+        return this->Transform(caster);
+    }
 };
     
 template<typename TC, size_t VD, typename TD> void

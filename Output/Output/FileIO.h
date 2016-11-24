@@ -21,7 +21,7 @@
 
 namespace File {
         
-struct BaseIO : TraitsIO {
+struct BaseIO : virtual TraitsIO {
     typedef double ScalarType;
 
     template<bool warn> struct Msg_ {

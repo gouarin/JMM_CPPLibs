@@ -210,7 +210,7 @@ protected:
             case 3:
                 for(int i=0; i<3; ++i)
                     for(int j=0; j<=i; ++j){
-                        int i1 = (i+1)%3, i2=(i+2)%3, j1=(j+1)%3, j2=(j+2)%3;
+                        const int i1 = (i+1)%3, i2=(i+2)%3, j1=(j+1)%3, j2=(j+2)%3;
                         m(i,j) = coef(i1,j1)*coef(i2,j2)-coef(i1,j2)*coef(i2,j1);
                     }
                 m/=det; return m;

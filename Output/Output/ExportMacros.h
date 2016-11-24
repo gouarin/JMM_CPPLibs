@@ -24,6 +24,12 @@ std::cout << "{"
 #include <iostream>
 #include <iterator>
 
+// ----- In class << operator declaration ------
+
+#define PrintSelfMacro(type) \
+void PrintSelf(std::ostream &) const; \
+friend std::ostream & operator << (std::ostream & os, const type & a){a.PrintSelf(os); return os;}
+
 // --------- << operator for printing pairs -------
 
 template<typename S, typename T>
@@ -81,6 +87,10 @@ std::ostream & operator << (std::ostream & os, _ExportArrayContainer<0,DataType>
     return os;
 }
 
+template<typename TFirst,typename TSecond>
+std::ostream & operator << (std::ostream & os, _ExportArrayContainer<0, std::pair<TFirst,TSecond> > container){
+    return os << "{" << container.data.first << "," << container.data.second << "}";
+}
 
 #define ExportArrayArrow(name) \
 << '"' << #name << '"' << " -> " << _Make_ExportArrayContainer<0>(name) << ","

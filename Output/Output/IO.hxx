@@ -33,6 +33,11 @@ T IO_<Base>::Get(KeyCRef key, const T & val) const {
     return val;
 }
 
+template<typename Base> template<typename T>
+std::vector<T> IO_<Base>::GetVector(KeyCRef key) const {
+    return GetArray<T, 1>(key);
+}
+
 template<typename Base> template<typename T, size_t d>
 TraitsIO::Array<T, d> IO_<Base>::GetArray(KeyCRef key) const {
     auto dimsPtr = this->template GetDimsPtr<T>(key);

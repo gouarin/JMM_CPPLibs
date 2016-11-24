@@ -10,7 +10,9 @@
 #define IO_h
 
 /** A simple import/export interface. 
- Note that most of the complexity is due to Matlab(R)'s habits of tampering with trailing singleton dimensions, and permuting the first two coordinate axes in images.
+ Note that most of the complexity is due to Matlab(R)'s habit of tampering with trailing singleton dimensions, and of permuting the first two coordinate axes in images.
+ 
+ The code WILL throw an exception, with a descriptive error message, whenever the user input is invalid. Make sure that your user input code is exception safe.
  */
 
 #include <string>
@@ -46,7 +48,7 @@ protected:
  mutable std::set<KeyType> unused, defaulted;
  */
 
-template<typename Base> struct IO_ : Base, TraitsIO {
+template<typename Base> struct IO_ : Base, virtual TraitsIO {
     using Base::Base;
     IO_(const IO_ &) = delete;
     ~IO_();
@@ -58,7 +60,7 @@ template<typename Base> struct IO_ : Base, TraitsIO {
     
     template<typename T> T Get(KeyCRef) const;
     template<typename T> T Get(KeyCRef, const T &) const;
-    template<typename T> std::vector<T> GetVector(KeyCRef key) const {return GetArray<T, 1>(key);}
+    template<typename T> std::vector<T> GetVector(KeyCRef key) const;
     template<typename T, size_t d> Array<T, d> GetArray(KeyCRef) const;
     template<typename T> std::vector<DiscreteType> GetDimensions(KeyCRef) const;
     
