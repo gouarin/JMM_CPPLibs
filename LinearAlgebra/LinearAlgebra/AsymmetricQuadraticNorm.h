@@ -1,10 +1,5 @@
-//
-//  AsymmetricQuadraticNorm.h
-//  LiftedFastMarching
-//
-//  Created by Jean-Marie Mirebeau on 23/06/2016.
-//
-//
+// Copyright 2017 Jean-Marie Mirebeau, University Paris-Sud, CNRS, University Paris-Saclay
+// Distributed WITHOUT ANY WARRANTY. Licensed under the Apache License, Version 2.0, see http://www.apache.org/licenses/LICENSE-2.0
 
 #ifndef AsymmetricQuadraticNorm_h
 #define AsymmetricQuadraticNorm_h

@@ -1,10 +1,5 @@
-//
-//  MexIO.h
-//  LiftedFastMarching_MatlabBuildTest
-//
-//  Created by Jean-Marie Mirebeau on 17/09/2016.
-//
-//
+// Copyright 2017 Jean-Marie Mirebeau, University Paris-Sud, CNRS, University Paris-Saclay
+// Distributed WITHOUT ANY WARRANTY. Licensed under the Apache License, Version 2.0, see http://www.apache.org/licenses/LICENSE-2.0
 
 #ifndef MexIO_h
 #define MexIO_h
@@ -32,6 +27,7 @@ namespace Mex {
         
         BaseIO(const mxArray *, mxArray **);
         BaseIO(const BaseIO &) = delete;
+        static clock_t top;
     protected:
         template<typename T> std::pair<std::vector<DiscreteType>,const T*> GetDimsPtr(KeyCRef) const;
         template<typename T, size_t d, typename F> void Set(KeyCRef, DimType<d>, const F &);
@@ -41,7 +37,7 @@ namespace Mex {
         const mxArray * mxInput;
         mxArray ** mxOutput;
     };
-    
+    clock_t BaseIO::top = clock();
 #include "MexIO.hxx"
 }
 

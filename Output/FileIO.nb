@@ -10,15 +10,36 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       157,          7]
-NotebookDataLength[     18932,        496]
-NotebookOptionsPosition[     18446,        474]
-NotebookOutlinePosition[     18802,        490]
-CellTagsIndexPosition[     18759,        487]
+NotebookDataLength[     21523,        540]
+NotebookOptionsPosition[     21036,        518]
+NotebookOutlinePosition[     21393,        534]
+CellTagsIndexPosition[     21350,        531]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
 Notebook[{
 Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"MergeRules", "[", 
+     RowBox[{"provided_", ",", "default_"}], "]"}], ":=", 
+    RowBox[{"With", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"l", "=", 
+        RowBox[{"First", "/@", "provided"}]}], "}"}], ",", 
+      RowBox[{"Join", "[", 
+       RowBox[{"provided", ",", 
+        RowBox[{"Select", "[", 
+         RowBox[{"default", ",", 
+          RowBox[{
+           RowBox[{"Not", "@", 
+            RowBox[{"MemberQ", "[", 
+             RowBox[{"l", ",", 
+              RowBox[{"First", "@", "#"}]}], "]"}]}], "&"}]}], "]"}]}], 
+       "]"}]}], "]"}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
  RowBox[{
   RowBox[{
    RowBox[{
@@ -50,7 +71,7 @@ Cell[BoxData[{
           "Print", "[", 
            "\"\<SaveToFile Error : Elements of l are not pairs\>\"", "]"}], 
           ";", "\[IndentingNewLine]", " ", 
-          RowBox[{"Return", "[", "]"}], ";"}]}], "]"}], ";", 
+          RowBox[{"Return", "[", "True", "]"}], ";"}]}], "]"}], ";", 
        "\[IndentingNewLine]", "\[IndentingNewLine]", 
        RowBox[{"If", "[", 
         RowBox[{
@@ -66,7 +87,7 @@ Cell[BoxData[{
           RowBox[{
           "Print", "[", "\"\<SaveToFile Error : Keys are not strings\>\"", 
            "]"}], ";", "\[IndentingNewLine]", " ", 
-          RowBox[{"Return", "[", "]"}], ";"}]}], "]"}], ";", 
+          RowBox[{"Return", "[", "True", "]"}], ";"}]}], "]"}], ";", 
        "\[IndentingNewLine]", "\[IndentingNewLine]", 
        RowBox[{"If", "[", 
         RowBox[{
@@ -90,7 +111,7 @@ Cell[BoxData[{
           "Print", "[", 
            "\"\<SaveToFile Error : data format should be string|Numeric|Array\
 \>\"", "]"}], ";", "\[IndentingNewLine]", " ", 
-          RowBox[{"Return", "[", "]"}], ";"}]}], "]"}], ";", 
+          RowBox[{"Return", "[", "True", "]"}], ";"}]}], "]"}], ";", 
        "\[IndentingNewLine]", "\[IndentingNewLine]", 
        RowBox[{"lStr", "=", 
         RowBox[{"Select", "[", 
@@ -151,7 +172,7 @@ Cell[BoxData[{
            "we", " ", "want", " ", "the", " ", "first", " ", "index", " ", 
            "to", " ", "be", " ", "the", " ", "fast", " ", "index"}], ",", " ", 
           RowBox[{"like", " ", "Matlab"}], ",", " ", 
-          RowBox[{"and", " ", "contrary", " ", "to", " ", "Mathematic"}]}], 
+          RowBox[{"and", " ", "contrary", " ", "to", " ", "Mathematica"}]}], 
          "*)"}], "\[IndentingNewLine]", 
         RowBox[{
          RowBox[{
@@ -227,8 +248,10 @@ Cell[BoxData[{
                RowBox[{"BinaryWrite", "[", 
                 RowBox[{"dataFile", ",", "data", ",", "\"\<Real64\>\""}], 
                 "]"}], ";", " ", 
-               RowBox[{"Close", "[", "dataFile", "]"}], ";"}]}], "]"}], 
-            ";"}]}], "\[IndentingNewLine]", "]"}], ",", "\[IndentingNewLine]", 
+               RowBox[{"Close", "[", "dataFile", "]"}], ";"}]}], "]"}], ";", 
+            "\[IndentingNewLine]", 
+            RowBox[{"Return", "[", "False", "]"}], ";"}]}], 
+          "\[IndentingNewLine]", "]"}], ",", "\[IndentingNewLine]", 
          RowBox[{
           RowBox[{"Return", "[", 
            RowBox[{"{", 
@@ -376,21 +399,42 @@ Cell[BoxData[{
           RowBox[{"str", ",", "\"\<\\n\\n\>\""}], "]"}]}], "}"}]}], "]"}], 
      ";", "\[IndentingNewLine]", "l"}]}], "\[IndentingNewLine]", 
    "]"}]}]}], "Input",
- CellChangeTimes->CompressedData["
-1:eJwd0V1I02EUBvBlENFiaIRIYq6UjU3ELZquYbTpIrfaYtpWOTZZoRENm+uD
-adNQaticbSKW1hYh4UVpmsm0L6ilQ9Jc0TZKVrMsUGsuv/LGov/zXhx+V+c8
-8JwdJ84WlyfQaDQ+NbDdaJLpTT8lOdWZclj6kKOE/s1n1LD7W9Fx+EC7pIVt
-wX4zzBvUWuBcX95luLYo7YENf6cfwaHl3rdQ9jEnAiO0bHoZpUY1nAQz09Vb
-obxZlgE9Mi+xwhxiw1s3hFlwRpzIg0VlPj60ctm5MF93ifjCbRDB593NROW7
-GjHcdGVCCjs/nJTB8emVg9AYK1RB7jNXCTy9v/woTHnjOEby0zYYYOSfgMhl
-a+hV6GV7mAH99vZk2MK+Q5Tq2alQ3FhJHPjhZcEC1VM+VFdH95C92+v3Qsl3
-lwSyevYVQGaxSQbrdzbp4XndagVsmLlXBS0lbRdITl2oAwaFsx54YMU+RO5w
-nK/hl/uHo1AQzY5B/ZOBOAwze31Wyl8+0TB0dwYnYKDPG4CWDHEIJr90xODS
-KH0Vmlv719VS2pYTtl2jfD95Mw3+3ujkQmXT7iy4lrLAg1/pbAGsPDUvhGNj
-i/nwiFMhhV1hjRx+ZtVchFu6HhMXkhRXIUMhssE6icsB/9BHr0PtLkOim3JK
-60+F9tJ6JuTwBonpLbqJEfKP1gC0Gu9+go223Ek4NW6KwleejlnIURbOQ8bc
-IWL8XK1ixEL1Hlcp4X8AcYmy
-  "]],
+ CellChangeTimes->{{3.682792011513256*^9, 3.682792017139793*^9}, {
+   3.682792049302533*^9, 3.6827921073453093`*^9}, {3.68279213827767*^9, 
+   3.68279215960494*^9}, {3.68279234158845*^9, 3.682792386866115*^9}, {
+   3.682792441740346*^9, 3.682792810154661*^9}, {3.682792847124696*^9, 
+   3.682793069498623*^9}, {3.682793185495152*^9, 3.682793561406355*^9}, {
+   3.6827936141349287`*^9, 3.6827936346600513`*^9}, {3.682793754298497*^9, 
+   3.682793757696486*^9}, {3.6827937906702147`*^9, 3.682793817768384*^9}, {
+   3.682793856507923*^9, 3.682793870074131*^9}, {3.682793905223936*^9, 
+   3.682793907855131*^9}, {3.682793939050383*^9, 3.6827939404273357`*^9}, {
+   3.682793987837928*^9, 3.682794022453618*^9}, {3.682794059119584*^9, 
+   3.682794079684057*^9}, {3.682794122122732*^9, 3.682794140522847*^9}, {
+   3.682794171164723*^9, 3.6827941803996696`*^9}, {3.6827942481910887`*^9, 
+   3.682794249687361*^9}, {3.682830426692281*^9, 3.682830454691205*^9}, {
+   3.68283051676694*^9, 3.68283051694233*^9}, {3.682830553230257*^9, 
+   3.682830555454132*^9}, {3.68283064571554*^9, 3.682830733822419*^9}, {
+   3.682830798983561*^9, 3.6828308241127653`*^9}, {3.682830860527863*^9, 
+   3.6828308659898863`*^9}, {3.682830923510025*^9, 3.682831092347962*^9}, {
+   3.682831159730158*^9, 3.6828312451533823`*^9}, {3.682831276666439*^9, 
+   3.6828315666716633`*^9}, {3.682831599288187*^9, 3.682831812342441*^9}, {
+   3.682831900473773*^9, 3.682832122489608*^9}, {3.682832233433497*^9, 
+   3.682832253647628*^9}, {3.6828544214727583`*^9, 3.682854433836294*^9}, {
+   3.68285451864485*^9, 3.682854525709083*^9}, {3.6828545700043297`*^9, 
+   3.682854764398448*^9}, {3.68285484036828*^9, 3.6828549255804987`*^9}, {
+   3.682879696092349*^9, 3.682879724745461*^9}, {3.682879828469841*^9, 
+   3.682879833642005*^9}, {3.6828798795343*^9, 3.6828799132202*^9}, {
+   3.6828799434501257`*^9, 3.682879975587377*^9}, {3.682880034423746*^9, 
+   3.682880082713702*^9}, {3.682880435817244*^9, 3.6828804376140223`*^9}, {
+   3.68288055440844*^9, 3.682880561821906*^9}, {3.6828806125079947`*^9, 
+   3.68288063025146*^9}, {3.682918531037397*^9, 3.682918622198715*^9}, {
+   3.682918660042302*^9, 3.682918661724629*^9}, {3.683004018923965*^9, 
+   3.68300402859858*^9}, {3.6830041090132427`*^9, 3.6830041137039223`*^9}, {
+   3.683004155525009*^9, 3.683004236800507*^9}, {3.683004274103291*^9, 
+   3.683004274403571*^9}, {3.687197291920402*^9, 3.68719729856048*^9}, 
+   3.6953273439567347`*^9, {3.696932469589566*^9, 3.696932477054446*^9}, {
+   3.696932520676399*^9, 3.6969325293448133`*^9}, {3.698727477906398*^9, 
+   3.698727479426937*^9}}],
 
 Cell[CellGroupData[{
 
@@ -473,7 +517,7 @@ Cell[BoxData[
 }, Open  ]]
 },
 WindowSize->{902, 794},
-WindowMargins->{{83, Automatic}, {Automatic, 0}},
+WindowMargins->{{11, Automatic}, {Automatic, 17}},
 FrontEndVersion->"9.0 for Mac OS X x86 (32-bit, 64-bit Kernel) (November 20, \
 2012)",
 StyleDefinitions->"Default.nb"
@@ -489,14 +533,14 @@ CellTagsIndex->{}
 *)
 (*NotebookFileOutline
 Notebook[{
-Cell[557, 20, 15210, 372, 1253, "Input"],
+Cell[557, 20, 17800, 416, 1321, "Input"],
 Cell[CellGroupData[{
-Cell[15792, 396, 779, 20, 28, "Input"],
-Cell[16574, 418, 320, 8, 312, "Output"]
+Cell[18382, 440, 779, 20, 28, "Input"],
+Cell[19164, 462, 320, 8, 312, "Output"]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[16931, 431, 847, 21, 28, "Input"],
-Cell[17781, 454, 649, 17, 35, "Output"]
+Cell[19521, 475, 847, 21, 28, "Input"],
+Cell[20371, 498, 649, 17, 35, "Output"]
 }, Open  ]]
 }
 ]

@@ -1,10 +1,5 @@
-//
-//  RanderNorm.h
-//  LinearAlgebra
-//
-//  Created by Jean-Marie Mirebeau on 16/04/2016.
-//
-//
+// Copyright 2017 Jean-Marie Mirebeau, University Paris-Sud, CNRS, University Paris-Saclay
+// Distributed WITHOUT ANY WARRANTY. Licensed under the Apache License, Version 2.0, see http://www.apache.org/licenses/LICENSE-2.0
 
 #ifndef RanderNorm_LinearAlgebra_h
 #define RanderNorm_LinearAlgebra_h

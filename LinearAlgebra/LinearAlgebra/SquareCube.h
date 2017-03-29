@@ -1,10 +1,5 @@
-//
-//  SquareCube.h
-//  AmongConvex2
-//
-//  Created by Jean-Marie Mirebeau on 25/07/13.
-//  Copyright (c) 2013 Jean-Marie Mirebeau. All rights reserved.
-//
+// Copyright 2017 Jean-Marie Mirebeau, University Paris-Sud, CNRS, University Paris-Saclay
+// Distributed WITHOUT ANY WARRANTY. Licensed under the Apache License, Version 2.0, see http://www.apache.org/licenses/LICENSE-2.0
 
 #ifndef AmongConvex2_SquareCube_h
 #define AmongConvex2_SquareCube_h
@@ -27,5 +22,19 @@ inline T square(T t){return t*=t;}
 
 template<typename T>
 inline T cube(T t){return t*=square(t);}
+
+// non-negative modulo
+template<typename T> inline T PosMod(T a, T n){
+    assert(n>0);
+    const T b = a%n;
+    return b>=0 ? b : b+n;
+}
+
+template<typename T>
+inline T fPosMod(T a, T n){
+    assert(n>0);
+    const T b = fmod(a,n);
+    return b>=0 ? b : b+n;
+}
 
 #endif

@@ -1,10 +1,5 @@
-//
-//  BasisReduction.hpp
-//  ExternLFM
-//
-//  Created by Jean-Marie Mirebeau on 21/10/2016.
-//
-//
+// Copyright 2017 Jean-Marie Mirebeau, University Paris-Sud, CNRS, University Paris-Saclay
+// Distributed WITHOUT ANY WARRANTY. Licensed under the Apache License, Version 2.0, see http://www.apache.org/licenses/LICENSE-2.0
 
 #ifndef BasisReduction_hpp
 #define BasisReduction_hpp
@@ -69,10 +64,12 @@ BasisReduction<TS,TD,VD>::ReducedBasis(const SymmetricMatrixType & m, BasisType 
 
 template<typename TS, typename TD, size_t VD> void
 BasisReduction<TS,TD,VD>::ObtuseSuperbase(const SymmetricMatrixType & m, SuperbaseType & sb) {
-    assert(m.Determinant()>0 && m.Trace()>0);
+    static_assert(VD<=3,"Sorry, dimensions >=4 are not supported");
+    if(m.Determinant()<=0 || m.Trace()<=0)
+        ExceptionMacro("ObtuseSuperbase error : input must be positive definite");
     if(Dimension==1) return;
     bool reduced=true;
-    while(reduced){
+    for(int countIt=0; reduced && countIt<maxIt; ++countIt){
         reduced=false;
         for(int i=0; i<Dimension; ++i)
             for(int j=i+1; j<=Dimension; ++j){
@@ -97,6 +94,10 @@ BasisReduction<TS,TD,VD>::ObtuseSuperbase(const SymmetricMatrixType & m, Superba
                 }
             }
     }
+    if(reduced) assert(false);
+    if(reduced) ExceptionMacro("ObtuseSuperbase error : did not terminate in "
+                               << maxIt << " iterations, for matrix " << m
+                               << ", current superbase: " ExportArrayArrow(sb) << ".\n");
     for(int i=0; i<Dimension; ++i)
         for(int j=i+1; j<=Dimension; ++j)
             assert(m.ScalarProduct(sb[i],sb[j])<=0);
@@ -113,8 +114,9 @@ BasisReduction<TS,TD,VD>::TensorDecomposition(const SymmetricMatrixType & diff){
 template<typename TS, typename TD, size_t VD> template<typename Dummy>
 struct BasisReduction<TS, TD, VD>::TensorDecompositionHelper<2,Dummy> {
     static_assert(VD==2,"Inconsistent dimensions");
-    static TensorDecompositionType Get(const SymmetricMatrixType & diff, const SuperbaseType & sb){
-        TensorDecompositionType decomp;
+    typedef BasisReduction<TS, TD, VD> T;
+    static T::TensorDecompositionType Get(const T::SymmetricMatrixType & diff, const T::SuperbaseType & sb){
+        T::TensorDecompositionType decomp;
         for(int i=0; i<3; ++i){
             int j=(i+1)%3,k=(i+2)%3;
             decomp[i] = {LinearAlgebra::Perp(sb[i]),-diff.ScalarProduct(sb[j],sb[k])};
@@ -126,8 +128,9 @@ struct BasisReduction<TS, TD, VD>::TensorDecompositionHelper<2,Dummy> {
 template<typename TS, typename TD, size_t VD> template<typename Dummy>
 struct BasisReduction<TS, TD, VD>::TensorDecompositionHelper<3,Dummy> {
     static_assert(VD==3,"Inconsistent dimensions");
-    static TensorDecompositionType Get(const SymmetricMatrixType & diff, const SuperbaseType & sb){
-        TensorDecompositionType decomp;
+    typedef BasisReduction<TS, TD, VD> T;
+    static T::TensorDecompositionType Get(const T::SymmetricMatrixType & diff, const T::SuperbaseType & sb){
+        T::TensorDecompositionType decomp;
         auto decompIt = decomp.begin();
         for(int i=0; i<4; ++i)
             for(int j=i+1; j<4; ++j){

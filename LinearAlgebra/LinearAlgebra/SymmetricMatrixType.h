@@ -1,10 +1,5 @@
-//
-//  SymmetricMatrixType.h
-//  LiftedFastMarching
-//
-//  Created by Jean-Marie Mirebeau on 09/10/2014.
-//  Copyright (c) 2014 Jean-Marie Mirebeau. All rights reserved.
-//
+// Copyright 2017 Jean-Marie Mirebeau, University Paris-Sud, CNRS, University Paris-Saclay
+// Distributed WITHOUT ANY WARRANTY. Licensed under the Apache License, Version 2.0, see http://www.apache.org/licenses/LICENSE-2.0
 
 #ifndef LiftedFastMarching_SymmetricMatrixType_h
 #define LiftedFastMarching_SymmetricMatrixType_h
@@ -178,7 +173,6 @@ protected:
     template<typename TC, size_t VD>
     TC
     SymmetricMatrix<TC, VD>::Determinant() const {
-        static_assert(VD>0 && VD<=3,"Unsupported matrix size");
         switch (VD) {
             case 0: return 1;
             case 1: return coef(0,0);
@@ -193,7 +187,13 @@ protected:
                 }
                 return result;
             }
-            default: throw "Unsupported matrix size";
+            default: {
+                LinearAlgebra::Matrix<TC, VD, VD> mat;
+                for(int i=0; i<VD; ++i)
+                    for(int j=0; j<VD; ++j)
+                        mat(i,j)=coef(i,j);
+                return mat.Determinant();
+            }
         }
     }
     

@@ -1,10 +1,5 @@
-//
-//  mxIO.hxx
-//  MatlabITK
-//
-//  Created by Jean-Marie Mirebeau on 17/10/13.
-//
-//
+// Copyright 2017 Jean-Marie Mirebeau, University Paris-Sud, CNRS, University Paris-Saclay
+// Distributed WITHOUT ANY WARRANTY. Licensed under the Apache License, Version 2.0, see http://www.apache.org/licenses/LICENSE-2.0
 
 #ifndef MatlabITK_mxIO_hxx
 #define MatlabITK_mxIO_hxx

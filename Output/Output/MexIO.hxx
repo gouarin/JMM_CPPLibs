@@ -1,10 +1,5 @@
-//
-//  MexIO.hxx
-//  LiftedFastMarching_MatlabBuildTest
-//
-//  Created by Jean-Marie Mirebeau on 17/09/2016.
-//
-//
+// Copyright 2017 Jean-Marie Mirebeau, University Paris-Sud, CNRS, University Paris-Saclay
+// Distributed WITHOUT ANY WARRANTY. Licensed under the Apache License, Version 2.0, see http://www.apache.org/licenses/LICENSE-2.0
 
 #ifndef MexIO_hxx
 #define MexIO_hxx
@@ -23,8 +18,11 @@ template<bool warn> BaseIO::Msg_<warn>::~Msg_(){
             }
             printf(str.c_str());
         }
-    mexEvalString("drawnow");
-    mexEvalString("pause(0.0001)");
+    if((clock()-top)>= 1.0 * CLOCKS_PER_SEC){
+        mexEvalString("drawnow");
+        mexEvalString("pause(0.001)");
+//        printf("elapsed : %f.\n", double(clock()-top)/CLOCKS_PER_SEC);
+    }
 };
 
 

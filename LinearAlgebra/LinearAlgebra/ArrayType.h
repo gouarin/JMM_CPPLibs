@@ -1,10 +1,5 @@
-//
-//  ArrayType.h
-//  LiftedFastMarching
-//
-//  Created by Jean-Marie Mirebeau on 14/09/2016.
-//
-//
+// Copyright 2017 Jean-Marie Mirebeau, University Paris-Sud, CNRS, University Paris-Saclay
+// Distributed WITHOUT ANY WARRANTY. Licensed under the Apache License, Version 2.0, see http://www.apache.org/licenses/LICENSE-2.0
 
 #ifndef ArrayType_h
 #define ArrayType_h
@@ -14,7 +9,9 @@
  */
 
 #include <vector>
+#include <algorithm>
 #include "PointType.h"
+
 
 namespace LinearAlgebra {
 
@@ -38,13 +35,14 @@ struct Array : public std::vector<TComponent> {
     
     auto operator() (const IndexType & index) ->decltype((*this)[0]) {assert(CheckDims());
         return this->operator[](Convert(index));}
-    auto operator() (const IndexType &) const ->decltype((*this)[0]) {assert(CheckDims());
+    auto operator() (const IndexType & index) const ->decltype((*this)[0]) {assert(CheckDims());
         return this->operator[](Convert(index));}
     
     void PrintSelf(std::ostream & os) const;
-    friend std::ostream & operator << (const Array & a, std::ostream & os){a.PrintSelf(os); return os;}
+    friend std::ostream & operator << (std::ostream & os, const Array & a){a.PrintSelf(os); return os;}
 
     DiscreteType Convert(const IndexType & index) const {
+        if(Dimension==0) return 0;
         assert(InRange(index));
         DiscreteType result = index[Dimension-1];
         for(int i=(int)Dimension-2; i>=0; --i)
@@ -53,7 +51,8 @@ struct Array : public std::vector<TComponent> {
     }
     
     IndexType Convert(DiscreteType n) const {
-        assert(0<=n && n<this->size());
+        if(Dimension==0) return IndexType();
+        assert(0<=n && n<dims.ProductOfCoordinates());
         IndexType result;
         for(int i=0; i<Dimension-1; ++i){
             result[i]=n%dims[i];

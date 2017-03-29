@@ -1,14 +1,11 @@
-//
-//  ShallowMap.h
-//  ExternLFM
-//
-//  Created by Jean-Marie Mirebeau on 28/10/2016.
-//
-//
+// Copyright 2017 Jean-Marie Mirebeau, University Paris-Sud, CNRS, University Paris-Saclay
+// Distributed WITHOUT ANY WARRANTY. Licensed under the Apache License, Version 2.0, see http://www.apache.org/licenses/LICENSE-2.0
 
 #ifndef ShallowMap_h
 #define ShallowMap_h
 
+#include <vector>
+#include <cassert>
 /*
  This container is made for the (rare) use cases where:
  - one wants to store a sparse array of (usually POD) values.
@@ -16,10 +13,7 @@
  - one does not want to pay the time complexity cost of an std::map.
 
  Caution: erase(index) does Not immediately call the destructor of the value stored at this index.
- 
  */
-
-#pragma todo("In itk, store the stencils in this type of structure.")
 
 template<typename TIndex, typename TValue, bool hasTrivialConstructor=true> struct ShallowMap {
     typedef TIndex IndexType;
@@ -55,7 +49,7 @@ template<typename TIndex, typename TValue, bool hasTrivialConstructor=true> stru
         if(j!=BadIndex()) return values[j];
         else {
             if(unallocated.empty()){
-                j=values.size();
+                j=(IndexType)values.size();
                 Construct<>::Emplace(values);
 //                values.emplace_back();
             } else {
@@ -94,12 +88,12 @@ protected:
 
 template<typename TI, typename TV, bool hTC> template<typename Dummy>
 struct ShallowMap<TI,TV,hTC>::Construct<true,Dummy>{
-    static void Emplace(std::vector<ValueType> & values){values.emplace_back();}
+    static void Emplace(std::vector<TV> & values){values.emplace_back();}
 };
 
 template<typename TI, typename TV, bool hTC> template<typename Dummy>
 struct ShallowMap<TI,TV,hTC>::Construct<false,Dummy>{
-    static void Emplace(std::vector<ValueType> & values){assert(false);}
+    static void Emplace(std::vector<TV> & values){assert(false);}
 };
 
 

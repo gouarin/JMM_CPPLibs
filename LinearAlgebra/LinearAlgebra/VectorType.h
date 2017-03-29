@@ -1,10 +1,5 @@
-//
-//  VectorType.h
-//  AmongConvex2
-//
-//  Created by Jean-Marie Mirebeau on 23/07/13.
-//  Copyright (c) 2013 Jean-Marie Mirebeau. All rights reserved.
-//
+// Copyright 2017 Jean-Marie Mirebeau, University Paris-Sud, CNRS, University Paris-Saclay
+// Distributed WITHOUT ANY WARRANTY. Licensed under the Apache License, Version 2.0, see http://www.apache.org/licenses/LICENSE-2.0
 
 #ifndef AmongConvex2_VectorType_h
 #define AmongConvex2_VectorType_h
@@ -49,7 +44,7 @@ affine_space<Point<TComponent, VDimension>, Vector<TComponent, VDimension> , TCo
     static Vector FromOrigin(const PointBaseType & p){return Vector(p);}
     static Vector Constant(ComponentType c){return PointBaseType::Constant(c);}
     
-    ComponentType ScalarProduct(const Vector & u) const {ComponentType s(0); for(size_t i=0; i<Dimension; ++i) s = s+this->operator[](i)*u[i]; return s;}
+    ComponentType ScalarProduct(const Vector & u) const {ComponentType s(0.); for(size_t i=0; i<Dimension; ++i) s = s+this->operator[](i)*u[i]; return s;}
     ComponentType SquaredNorm() const {return ScalarProduct(*this);}
     ComponentType Norm() const {assert( !std::is_integral<ComponentType>::value ); return sqrt(SquaredNorm());}
     bool IsNull() const {for(int i=0;i<Dimension;++i) if((*this)[i]!=0) return false; return true;}

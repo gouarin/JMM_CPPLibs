@@ -1,12 +1,7 @@
-//
-//  itkImageRegionIteratorWithIndex.h
-//  MatlabInterface
-//
-//  Created by Jean-Marie Mirebeau on 31/03/2015.
-//  Copyright (c) 2015 Jean-Marie Mirebeau. All rights reserved.
-//
+// Copyright 2017 Jean-Marie Mirebeau, University Paris-Sud, CNRS, University Paris-Saclay
+// Distributed WITHOUT ANY WARRANTY. Licensed under the Apache License, Version 2.0, see http://www.apache.org/licenses/LICENSE-2.0
 
-// !! THIS IS NOT ITK !!
+// !! THIS IS NOT the Insight Toolkit ITK (R) !!
 // This is a quick mockup made to reproduce only very basic functionality, needed for my C++ to Matlab interface.
 
 #ifndef MatlabInterface_itkImageRegionIteratorWithIndex_h

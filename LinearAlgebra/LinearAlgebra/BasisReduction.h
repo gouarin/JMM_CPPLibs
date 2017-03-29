@@ -1,10 +1,5 @@
-//
-//  BasisReduction.h
-//  ExternLFM
-//
-//  Created by Jean-Marie Mirebeau on 21/10/2016.
-//
-//
+// Copyright 2017 Jean-Marie Mirebeau, University Paris-Sud, CNRS, University Paris-Saclay
+// Distributed WITHOUT ANY WARRANTY. Licensed under the Apache License, Version 2.0, see http://www.apache.org/licenses/LICENSE-2.0
 
 #ifndef BasisReduction_h
 #define BasisReduction_h
@@ -15,10 +10,10 @@ namespace LinearAlgebra {
     
 template<typename TScalar, typename TDiscrete, size_t VDimension>
 struct BasisReduction {
-    static_assert(VDimension<=3,"Sorry, dimensions >=4 are not supported");
     typedef TScalar ScalarType;
     typedef TDiscrete DiscreteType;
     static const size_t Dimension = VDimension;
+    typedef Vector<ScalarType, Dimension> VectorType;
     typedef Vector<DiscreteType, Dimension> DiscreteVectorType;
     typedef SymmetricMatrix<ScalarType, Dimension> SymmetricMatrixType;
     
@@ -32,9 +27,11 @@ struct BasisReduction {
     static void ReducedBasis(const SymmetricMatrixType &, BasisType &);
     static void ObtuseSuperbase(const SymmetricMatrixType &, SuperbaseType &);
     static TensorDecompositionType TensorDecomposition(const SymmetricMatrixType &);
+    static int maxIt;
 protected:
     template<size_t VD, typename Dummy=void> struct TensorDecompositionHelper;
 };
+template<typename TS,typename TD,size_t VD> int BasisReduction<TS,TD,VD>::maxIt=200;
 #include "BasisReduction.hpp"
 }
 

@@ -1,15 +1,12 @@
-//
-//  PointBaseType.h
-//  AmongConvex2
-//
-//  Created by Jean-Marie Mirebeau on 24/07/13.
-//  Copyright (c) 2013 Jean-Marie Mirebeau. All rights reserved.
-//
+// Copyright 2017 Jean-Marie Mirebeau, University Paris-Sud, CNRS, University Paris-Saclay
+// Distributed WITHOUT ANY WARRANTY. Licensed under the Apache License, Version 2.0, see http://www.apache.org/licenses/LICENSE-2.0
 
 #ifndef AmongConvex2_PointBaseType_h
 #define AmongConvex2_PointBaseType_h
 
 #include <iostream>
+#include <limits>
+#include <numeric>
 #include <array>
 #include <cassert>
 #include <cmath>
@@ -58,7 +55,7 @@ std::ostream & operator << (std::ostream & f, const PointBase<TC,VD> & p)
     f<<"{";
     for(int i=0; i<VD; ++i){
         if(i>0) f<<",";
-        f<<p[i];
+        f<< (std::is_same<TC, char>::value ? (int) p[i] : p[i]);
     }
     f<<"}";
     return f;

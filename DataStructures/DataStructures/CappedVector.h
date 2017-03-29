@@ -1,15 +1,11 @@
-//
-//  CappedVector.h
-//  LiftedFastMarching
-//
-//  Created by Jean-Marie Mirebeau on 07/10/2016.
-//
-//
+// Copyright 2017 Jean-Marie Mirebeau, University Paris-Sud, CNRS, University Paris-Saclay
+// Licensed under the Apache License, Version 2.0, WITHOUT ANY WARRANTY, see http://www.apache.org/licenses/LICENSE-2.0
 
 #ifndef CappedVector_h
 #define CappedVector_h
 
 #include <array>
+#include <iostream>
 
 template<typename T, size_t N>
 struct CappedVector :  std::array<T,N> {

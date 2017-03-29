@@ -1,11 +1,11 @@
-//
-//  EnumToString.h
-//  AmongConvex2_Mosek7
-//
+// Copyright 2017 Jean-Marie Mirebeau, University Paris-Sud, CNRS, University Paris-Saclay
+// Distributed WITHOUT ANY WARRANTY. Licensed under the Apache License, Version 2.0, see http://www.apache.org/licenses/LICENSE-2.0
+
+// This is a modified version of the code appearing in the thread
 // http://codereview.stackexchange.com/questions/14309/conversion-between-enum-and-string-in-c-class-header
 
-#ifndef AmongConvex2_Mosek7_EnumToString_h
-#define AmongConvex2_Mosek7_EnumToString_h
+#ifndef EnumToString_h
+#define EnumToString_h
 
 #include <iostream>
 #include <sstream>

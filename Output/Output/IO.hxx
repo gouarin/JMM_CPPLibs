@@ -1,10 +1,5 @@
-//
-//  IO.hxx
-//  ExternLFM
-//
-//  Created by Jean-Marie Mirebeau on 21/09/2016.
-//
-//
+// Copyright 2017 Jean-Marie Mirebeau, University Paris-Sud, CNRS, University Paris-Saclay
+// Distributed WITHOUT ANY WARRANTY. Licensed under the Apache License, Version 2.0, see http://www.apache.org/licenses/LICENSE-2.0
 
 #ifndef IO_hxx
 #define IO_hxx
@@ -12,9 +7,9 @@
 // Input
 
 template<typename Base>
-std::string IO_<Base>::GetString(KeyCRef key, const std::string & val) const {
+std::string IO_<Base>::GetString(KeyCRef key, const std::string & val, int verb) const {
     if(Base::HasField(key)) return Base::GetString(key);
-    if(verbosity) Msg() << "Field " << key << " defaults to " << val << "\n";
+    if(verbosity>=verb) Msg() << "Field " << key << " defaults to " << val << "\n";
     return val;
 }
 
@@ -27,9 +22,9 @@ T IO_<Base>::Get(KeyCRef key) const {
 }
 
 template<typename Base> template<typename T>
-T IO_<Base>::Get(KeyCRef key, const T & val) const {
+T IO_<Base>::Get(KeyCRef key, const T & val, int verb) const {
     if(this->HasField(key)) return Get<T>(key);
-    if(verbosity) Msg() << "Field " << key << " defaults to " << val << "\n";
+    if(verbosity>=verb) Msg() << "Field " << key << " defaults to " << val << "\n";
     return val;
 }
 
@@ -55,20 +50,32 @@ TraitsIO::Array<T, d> IO_<Base>::GetArray(KeyCRef key) const {
     std::copy(dims.begin(), dims.end(), result.dims.begin());
     result.resize(result.dims.ProductOfCoordinates());
     
-    if(transposeFirstTwoCoordinates){
-        const TransposeVals<T,d> TrVals(result.dims, dimsPtr.second);
-        result.dims = TransposeDims(result.dims);
-        for(size_t i=0; i<result.size(); ++i) result[i] = TrVals(i);
-    } else std::copy(dimsPtr.second, dimsPtr.second+result.size(), result.begin());
-    
+    switch (arrayOrdering) {
+        case ArrayOrdering::Default: {
+            std::copy(dimsPtr.second, dimsPtr.second+result.size(), result.begin());
+            break;}
+        case ArrayOrdering::Transposed: {
+            const TransposeVals<T,d> TrVals(result.dims, dimsPtr.second);
+            result.dims = TransposeDims(result.dims);
+            for(size_t i=0; i<result.size(); ++i) result[i] = TrVals((DiscreteType)i);
+            break;}
+        case ArrayOrdering::Reversed: {
+            const ReverseVals<T,d> RevVals(result.dims, dimsPtr.second);
+            result.dims = ReverseDims(result.dims);
+            for(size_t i=0; i<result.size(); ++i) result[i] = RevVals((DiscreteType)i);
+            break;}
+    }
     return result;
 }
 
 template<typename Base> template<typename T>
 std::vector<TraitsIO::DiscreteType> IO_<Base>::GetDimensions(KeyCRef key) const {
     auto dims = this->template GetDimsPtr<T>(key).first;
-    if(transposeFirstTwoCoordinates) return TransposeDims(dims);
-    else return dims;
+    switch (arrayOrdering) {
+        case ArrayOrdering::Default: return  dims;
+        case ArrayOrdering::Transposed: return TransposeDims(dims);
+        case ArrayOrdering::Reversed: return ReverseDims(dims);
+    }
 }
 
 // Output
@@ -82,7 +89,7 @@ void IO_<Base>::Set(KeyCRef key, DimType<d> dims, const T* pVals){
 
 template<typename Base> template<typename T>
 void IO_<Base>::Set(KeyCRef key, const T & val) {
-    this-> template Set<T,0>(key,{},&val);
+    this->template Set<T,0>(key,{},&val);
 }
 
 template<typename Base> template<typename T>
@@ -92,9 +99,15 @@ void IO_<Base>::SetVector(KeyCRef key, const std::vector<T> & val) {
 
 template<typename Base> template<typename T, size_t d>
 void IO_<Base>::SetArray(KeyCRef key, const Array<T, d> & val) {
-    if(transposeFirstTwoCoordinates)
-        Base::template Set<T,d>(key, TransposeDims(val.dims), TransposeVals<T,d>(val.dims,&val[0]) );
-    else Set<T,d>(key,val.dims,&val[0]);
+    switch (arrayOrdering) {
+        case ArrayOrdering::Default: return Set<T,d>(key,val.dims,&val[0]);
+        case ArrayOrdering::Transposed:
+            return Base::template Set<T,d>(key, TransposeDims(val.dims),
+                                           TransposeVals<T,d>(val.dims,&val[0]) );
+        case ArrayOrdering::Reversed:
+            return Base::template Set<T,d>(key, ReverseDims(val.dims),
+                                           ReverseVals<T,d>(val.dims,&val[0]) );
+    }
 }
 
 // Transposition
@@ -117,6 +130,27 @@ struct IO_<Base>::TransposeVals {
         return pVals[a.Convert(TransposeDims(ta.Convert(index)))];}
 };
 
+// Reversal
+
+template<typename Base> template<typename V>
+V IO_<Base>::ReverseDims(const V & dims) {
+    V result=dims;
+    const int n=(int)dims.size();
+    for(int i=0; i<n/2; ++i)
+        std::swap(result[i],result[n-1-i]);
+    return result;
+}
+
+template<typename Base> template<typename T, size_t d>
+struct IO_<Base>::ReverseVals {
+    const T * const pVals;
+    Array<T,d> a, ta;
+    ReverseVals(const DimType<d> & dims, const T * pVals_)
+    :pVals(pVals_){a.dims=dims; ta.dims=IO_::ReverseDims(dims);}
+    const T & operator()(DiscreteType index) const {
+        return pVals[a.Convert(ReverseDims(ta.Convert(index)))];}
+};
+
 // Destruction
 
 template<typename Base>
@@ -125,7 +159,7 @@ IO_<Base>::~IO_(){
         std::ostringstream oss;
         for(KeyCRef key : this->unused) oss << key << " ";
         this->SetString("unused", oss.str());
-        Msg() << "Unused fields : " << oss.str() << "\n";
+        if(verbosity>=1) Msg() << "Unused fields : " << oss.str() << "\n";
     }
     if(!this->defaulted.empty()){
         std::ostringstream oss;
