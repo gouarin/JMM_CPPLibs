@@ -27,7 +27,7 @@ struct Array : public std::vector<TComponent> {
     Array(const Superclass & super_,IndexType dims_):Superclass(super_),dims(dims_){};
     Array(){};
     
-    IndexType dims;
+    IndexType dims=IndexType::Constant(0);
     bool CheckDims() const {return dims.ProductOfCoordinates()==this->size();}
     bool InRange(const IndexType & index) const {
         for(size_t i=0; i<Dimension; ++i) if(index[i]<0 || index[i]>=dims[i]) return false;

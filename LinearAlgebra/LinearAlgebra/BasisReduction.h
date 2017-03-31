@@ -1,6 +1,15 @@
 // Copyright 2017 Jean-Marie Mirebeau, University Paris-Sud, CNRS, University Paris-Saclay
 // Distributed WITHOUT ANY WARRANTY. Licensed under the Apache License, Version 2.0, see http://www.apache.org/licenses/LICENSE-2.0
 
+/*
+ Notice to users.
+ If you use these methods in an academic or commercial project, it would be kind to cite at least one of the following papers, where the applications of basis reduction to PDE discretization were first introduced.
+ - (On anisotropic fast marching)
+J.-M. Mirebeau, “Anisotropic Fast-Marching on cartesian grids using Lattice Basis Reduction,” SIAM J. Numer. Anal., vol. 52, no. 4, pp. 1573–1599, Jan. 2014.
+ - (On anisotropic diffusion)
+J. Fehrenbach and J.-M. Mirebeau, “Sparse Non-negative Stencils for Anisotropic Diffusion,” Journal of Mathematical Imaging and Vision, pp. 1–25, 2013.
+ */
+
 #ifndef BasisReduction_h
 #define BasisReduction_h
 
