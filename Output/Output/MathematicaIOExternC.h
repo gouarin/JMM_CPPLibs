@@ -6,7 +6,10 @@
 #define MathematicaIOExternC_h
 
 
-#define MathematicaTryCatch(code) \
+#define MathematicaTryCatch(nArgs,code) \
+if(nArgs!=Argc) { \
+IO::WarnMsg() << "Library call error : number of arguments " << Argc << " differs from expected " << nArgs << ".\n"; \
+return LIBRARY_TYPE_ERROR;} \
 try{code; \
 return LIBRARY_NO_ERROR; \
 } catch (const std::logic_error & e) { \
@@ -21,20 +24,39 @@ return LIBRARY_FUNCTION_ERROR; \
 extern "C"
 {//Begin of Extern "C"
 
+    DLLEXPORT bool HasField(WolframLibraryData libData, mint Argc, MArgument *Args, MArgument Res){
+        MathematicaTryCatch(1,
+                            io.SetWolframLibraryData(libData);
+                            const std::string key = MArgument_getUTF8String(Args[0]);
+                            MArgument_setBoolean(Res,io.HasField(key));
+                            )
+        
+    }
+    
+    DLLEXPORT bool EraseField(WolframLibraryData libData, mint Argc, MArgument *Args, MArgument Res){
+        MathematicaTryCatch(1,
+                            io.SetWolframLibraryData(libData);
+                            const std::string key = MArgument_getUTF8String(Args[0]);
+                            MArgument_setBoolean(Res,io.EraseField(key));
+                            )
+    }
+    
 	  /* ***************************************************************************** */
 	  /* ********************* All the set/get functions ***************************** */
 	  /* ***************************************************************************** */
 
 	  // GetScalar/SetScalar
 	DLLEXPORT int GetScalar(WolframLibraryData libData, mint Argc, MArgument *Args, MArgument Res){
-        MathematicaTryCatch(io.SetWolframLibraryData(libData);
+        MathematicaTryCatch(1,
+                            io.SetWolframLibraryData(libData);
                             const std::string key = MArgument_getUTF8String(Args[0]);
                             MArgument_setReal(Res, io.Get<double>(key));
                             )
     }
     
 	DLLEXPORT int SetScalar(WolframLibraryData libData, mint Argc, MArgument *Args, MArgument Res){
-        MathematicaTryCatch(io.SetWolframLibraryData(libData);
+        MathematicaTryCatch(2,
+                            io.SetWolframLibraryData(libData);
                             const std::string key = MArgument_getUTF8String(Args[0]);
                             const double val = MArgument_getReal(Args[1]);
                             io.Set<double>(key, val);
@@ -44,7 +66,8 @@ extern "C"
 	// GetString/SetString
 	DLLEXPORT int GetString(WolframLibraryData libData, mint Argc, MArgument *Args, MArgument Res)
 	{
-        MathematicaTryCatch(io.SetWolframLibraryData(libData);
+        MathematicaTryCatch(1,
+                            io.SetWolframLibraryData(libData);
                             const std::string key = MArgument_getUTF8String(Args[0]);
                             const std::string stringSTD = io.GetString(key);
                             MArgument_setUTF8String(Res, (char*)stringSTD.c_str());
@@ -53,7 +76,8 @@ extern "C"
 //			std::copy(stringSTD.begin(), stringSTD.end(), string);
 	}
 	DLLEXPORT int SetString(WolframLibraryData libData, mint Argc, MArgument *Args, MArgument Res){
-        MathematicaTryCatch(io.SetWolframLibraryData(libData);
+        MathematicaTryCatch(2,
+                            io.SetWolframLibraryData(libData);
                             const std::string key = MArgument_getUTF8String(Args[0]);
                             const std::string val = MArgument_getUTF8String(Args[1]);
                             io.SetString(key, val);
@@ -62,7 +86,8 @@ extern "C"
 
 	// GetVector/SetVector
 	DLLEXPORT int GetVector(WolframLibraryData libData, mint Argc, MArgument *Args, MArgument Res){
-        MathematicaTryCatch(io.SetWolframLibraryData(libData);
+        MathematicaTryCatch(1,
+                            io.SetWolframLibraryData(libData);
                             const std::string key = MArgument_getUTF8String(Args[0]);
                             MArgument_setMTensor(Res, io.VectorToMTensor<double>(io.GetVector<double>(key)));
                             )
@@ -70,7 +95,8 @@ extern "C"
     
 	DLLEXPORT int SetVector(WolframLibraryData libData, mint Argc, MArgument *Args, MArgument Res)
 	{
-        MathematicaTryCatch(io.SetWolframLibraryData(libData);
+        MathematicaTryCatch(2,
+                            io.SetWolframLibraryData(libData);
                             const std::string key = MArgument_getUTF8String(Args[0]);
                             MTensor val = MArgument_getMTensor(Args[1]);
                             io.SetVector<double>(key, io.MTensorToVector<double>(val));
@@ -79,7 +105,8 @@ extern "C"
 
 	// GetArray/SetArray
 	DLLEXPORT int GetArray(WolframLibraryData libData, mint Argc, MArgument *Args, MArgument Res){
-        MathematicaTryCatch(io.SetWolframLibraryData(libData);
+        MathematicaTryCatch(2,
+                            io.SetWolframLibraryData(libData);
                             const std::string key = MArgument_getUTF8String(Args[0]);
                             const int d = MArgument_getInteger(Args[1]); // Array dimension
                             switch (d) {
@@ -113,7 +140,10 @@ extern "C"
          ExceptionMacro("GetArray error : unsupported dimension");
          }
          )*/
-        
+        const int nArgs=2;
+        if(Argc!=nArgs) {
+            IO::WarnMsg() << "Library call error : number of arguments " << Argc << " differs from expected " << nArgs << ".\n";
+            return LIBRARY_TYPE_ERROR;}
         try{
             io.SetWolframLibraryData(libData);
             const std::string key = MArgument_getUTF8String(Args[0]);

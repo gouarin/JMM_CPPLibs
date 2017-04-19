@@ -15,6 +15,7 @@
 #include "Output/ExceptionMacro.h"
 #include "LinearAlgebra/ArrayType.h"
 #include "Output/EnumToString.h"
+#include "DataStructures/RedeclareTypesMacro.h"
 
 
 #ifndef __IgnoreTrailingSingletonDimensions
@@ -26,18 +27,20 @@ struct TraitsIO {
     typedef std::string KeyType;
     typedef std::string const & KeyCRef;
     typedef Array<double,1>::DiscreteType DiscreteType;
+    int verbosity=1;
 protected:
     template<size_t d> using DimType = LinearAlgebra::Point<DiscreteType,d>;
 };
 
 /*
- Base must provide the following
+ Base must inherit TraitsIO (or redefine similar traits) and provide the following
  
  public:
  template<bool warn> struct Msg_;
  bool HasField(KeyCRef) const;
  std::string GetString(KeyCRef) const;
  void SetString(KeyCRef, std::string);
+ typedef double ScalarType; // Or any suitable scalartype
 
  protected:
  template<typename T> std::pair<std::vector<DiscreteType>,const T*> GetDimsPtr(KeyCRef) const;
@@ -49,7 +52,12 @@ enum class ArrayOrdering {Default, Reversed, Transposed};
 template<> char const * enumStrings<ArrayOrdering>::data[] = {
     "Default", "Reversed", "Transposed"};
 
-template<typename Base> struct IO_ : Base, virtual TraitsIO {
+template<typename Base> struct IO_ : Base {
+    typedef Base Superclass;
+    Redeclare4Types(FromSuperclass,KeyType,KeyCRef,DiscreteType,ScalarType);
+    template<typename TC, size_t VD> using Array = typename Superclass::template Array<TC,VD>;
+    template<size_t VD> using DimType = typename Superclass::template DimType<VD>;
+    
     using Base::Base;
     IO_(const IO_ &) = delete;
     ~IO_();
@@ -69,8 +77,7 @@ template<typename Base> struct IO_ : Base, virtual TraitsIO {
     template<typename T> void Set(KeyCRef, const T &);
     template<typename T> void SetVector(KeyCRef, const std::vector<T> &);
     template<typename T, size_t d> void SetArray(KeyCRef, const Array<T, d> &);
-    
-    int verbosity=1;
+
     ArrayOrdering arrayOrdering = ArrayOrdering::Default;
 protected:
     template<typename V> static V TransposeDims(const V &);

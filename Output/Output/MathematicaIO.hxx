@@ -13,7 +13,7 @@ struct BaseIO::InputFormatElement {
 
 	// case of a numerical field
 	std::vector<DiscreteType> dims;
-	size_t pos = std::numeric_limits<size_t>::max();
+    std::vector<ScalarType> data;
 
 	// in case of vector valued vectors:
 	DiscreteType sizeRatio;
@@ -28,13 +28,8 @@ const BaseIO::InputFormatElement & BaseIO::GetInputFormat(KeyCRef key) const {
 
 
 void BaseIO::SetDefined(KeyCRef key) {
-    static bool hasWarned=false;
-    
-    if (defined.find(key) != defined.end()){
-        Msg_<true>() << "MathematicaIO warning: redefining field " << key <<
-        (!hasWarned ? ", but memory is not freed until library is unloaded.\n" : "\n");
-        hasWarned=true;
-    }
+    if (defined.find(key) != defined.end() && verbosity>=1){
+        Msg_<true>() << "MathematicaIO warning: redefining field " << key << ".\n";}
 	defined.insert(key);
     unused.insert(key);
 }
@@ -50,7 +45,7 @@ template<typename T> std::pair<std::vector<BaseIO::DiscreteType>, const T*> Base
 			ExceptionMacro("MathematicaIO input error first dimension " << (dims.empty() ? 0 : dims[0]) << " of field " << key << " does not match expected value " << sizeRatio << ".");
 		dims.erase(dims.begin());
 	}
-	return { dims, reinterpret_cast<const T*>(&inputOutputData[format.pos]) };
+	return {dims, reinterpret_cast<const T*>(&format.data[0]) };
 }
 
 template<typename T, size_t d, typename F> void BaseIO::Set(KeyCRef key, DimType<d> dims, const F & vals) {
@@ -60,22 +55,19 @@ template<typename T, size_t d, typename F> void BaseIO::Set(KeyCRef key, DimType
 	const ScalarType sizeRatio = sizeof(T) / sizeof(ScalarType);
 	const DiscreteType size = dims.ProductOfCoordinates();
 	
-	const size_t posIn = inputOutputData.size();
-	inputOutputData.resize(posIn + sizeRatio*size);
+    InputFormatElement & format = inputOutputFormat[key];
+    format.data.resize(sizeRatio*size);
 
-	T* input = reinterpret_cast<T*>(&inputOutputData[posIn]);
+	T* input = reinterpret_cast<T*>(&format.data[0]);
 	for (DiscreteType i = 0; i<size; ++i)
 		input[i] = vals(i);
 
-	InputFormatElement format;
-	format.pos = posIn;
 	int dim = dims.Dimension;
 	format.dims.resize(dim);
 	for (int i = 0; i<dim; ++i) {
 		format.dims[i] = dims[i];
 	}
 	format.sizeRatio = sizeRatio;
-	inputOutputFormat[key] = format;
 }
 
 
@@ -87,9 +79,15 @@ bool BaseIO::HasField(KeyCRef key) const {
 	return false;
 }
 
+bool BaseIO::EraseField(KeyCRef key) {
+    defined.erase(key);
+    unused.erase(key);
+    return inputOutputFormat.erase(key);
+}
+
 std::string BaseIO::GetString(KeyCRef key) const {
 	const auto & val = GetInputFormat(key);
-	if (val.dims.size()>0 || val.pos != std::numeric_limits<size_t>::max())
+	if (!val.data.empty())
 		ExceptionMacro("MathematicaIO import error : field " << key << " is not a string.");
     unused.erase(key);
 	return val.str;
@@ -103,7 +101,7 @@ void BaseIO::SetString(KeyCRef key, std::string val) {
 }
 
 template<typename T> std::vector<T> BaseIO::MTensorToVector(MTensor vectorMath_T) {
-	double* vectorMath = libData->MTensor_getRealData(vectorMath_T);
+	ScalarType* vectorMath = libData->MTensor_getRealData(vectorMath_T);
 	int vectorMathLen = libData->MTensor_getFlattenedLength(vectorMath_T);
 	std::vector<T> vectorOut(vectorMath, vectorMath + vectorMathLen);
 	return vectorOut;
@@ -123,7 +121,7 @@ template<typename T, size_t d> TraitsIO::Array<T,d> BaseIO::MTensorToArray(MTens
 
 	// Copy the MTensor data to the array
 	arrayOut.resize(arrayMathLen);
-	memcpy(&arrayOut[0], &arrayMath[0], arrayMathLen * sizeof(double));
+	memcpy(&arrayOut[0], &arrayMath[0], arrayMathLen * sizeof(ScalarType));
 
 	// Return the array
 	return arrayOut;
@@ -143,10 +141,10 @@ template<typename T> MTensor BaseIO::VectorToMTensor(const std::vector<T> & vect
 	libData->MTensor_new(MType_Real, d, size, &vectorMath_T);
 
 	// Copy data to the MTensor
-	double* vectorMath;
+	ScalarType* vectorMath;
 	vectorMath = libData->MTensor_getRealData(vectorMath_T);
-    static_assert(std::is_same<T,double>::value,"MTensor only accepts double values");
-	memcpy(&vectorMath[0], &vector[0], size[0] * sizeof(double));
+    static_assert(std::is_same<T,ScalarType>::value,"MTensor only accepts double values");
+	memcpy(&vectorMath[0], &vector[0], size[0] * sizeof(ScalarType));
 
 	// Return the MTensor
 	return vectorMath_T;
@@ -158,17 +156,20 @@ template<typename T, int d> MTensor BaseIO::ArrayToMTensor(const TraitsIO::Array
 	mint flattenedLength = 0;
 	for (int i = 0; i < d; i++) {
 		size[i] = arrayIn.dims[d - 1 - i];
-		flattenedLength += size[i];
+		flattenedLength *= size[i];
 	}
+    flattenedLength*=sizeof(T)/sizeof(ScalarType);
+    static_assert(sizeof(T)%sizeof(ScalarType)==0, "ArrayToMTensor error : type is not made of scalars");
+    
 
 	// Create empty MTensor
 	MTensor arrayMath_T;
 	libData->MTensor_new(MType_Real, d, size, &arrayMath_T);
 
 	// Copy data to the MTensor
-	double* arrayMath;
+	ScalarType* arrayMath;
 	arrayMath = libData->MTensor_getRealData(arrayMath_T);
-	memcpy(&arrayMath[0], &arrayIn[0], flattenedLength * sizeof(double));
+    memcpy(&arrayMath[0], reinterpret_cast<ScalarType*>(&arrayIn[0]), flattenedLength * sizeof(ScalarType));
 
 	// Return the MTensor
 	return arrayMath_T;
@@ -177,7 +178,7 @@ template<typename T, int d> MTensor BaseIO::ArrayToMTensor(const TraitsIO::Array
 template<typename T, int d> MTensor BaseIO::GetMTensor(KeyCRef key) {
     
 	// Get information about the formatting of the data
-	InputFormatElement format = GetInputFormat(key);
+	const InputFormatElement & format = GetInputFormat(key);
 	
 	// Set size of the array
     const size_t nDims = format.dims.size() + (format.sizeRatio!=1);
@@ -201,8 +202,8 @@ template<typename T, int d> MTensor BaseIO::GetMTensor(KeyCRef key) {
 	mint flattenedLength = libData->MTensor_getFlattenedLength(arrayMath_T);
 
 	// Copy data to MTensor
-	double* arrayMath = libData->MTensor_getRealData(arrayMath_T);;
-	memcpy(&arrayMath[0], &inputOutputData[format.pos], flattenedLength * sizeof(double));
+	ScalarType* arrayMath = libData->MTensor_getRealData(arrayMath_T);;
+	memcpy(&arrayMath[0], &format.data[0], flattenedLength * sizeof(ScalarType));
 		
 	// Return the MTensor
 	return arrayMath_T;

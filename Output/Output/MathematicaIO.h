@@ -21,7 +21,7 @@ A simple interface for making Mathematica data available to the c++ code.
 
 namespace Mathematica {
 
-	struct BaseIO : virtual TraitsIO {
+	struct BaseIO : TraitsIO {
 		typedef double ScalarType;
 
 		template<bool warn> struct Msg_ {
@@ -43,6 +43,7 @@ namespace Mathematica {
 		~BaseIO();
 
 		bool HasField(KeyCRef) const;
+        bool EraseField(KeyCRef);
 		std::string GetString(KeyCRef) const;
 		void SetString(KeyCRef, std::string);
 				
@@ -69,7 +70,6 @@ namespace Mathematica {
 
 		struct InputFormatElement;
 		std::map<KeyType, InputFormatElement> inputOutputFormat;
-		std::vector<ScalarType> inputOutputData;
 		
 		const InputFormatElement & GetInputFormat(KeyCRef) const;
 		void SetDefined(KeyCRef);

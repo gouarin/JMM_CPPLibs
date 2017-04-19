@@ -9,7 +9,7 @@
 template<typename Base>
 std::string IO_<Base>::GetString(KeyCRef key, const std::string & val, int verb) const {
     if(Base::HasField(key)) return Base::GetString(key);
-    if(verbosity>=verb) Msg() << "Field " << key << " defaults to " << val << "\n";
+    if(this->verbosity>=verb) Msg() << "Field " << key << " defaults to " << val << "\n";
     return val;
 }
 
@@ -24,7 +24,7 @@ T IO_<Base>::Get(KeyCRef key) const {
 template<typename Base> template<typename T>
 T IO_<Base>::Get(KeyCRef key, const T & val, int verb) const {
     if(this->HasField(key)) return Get<T>(key);
-    if(verbosity>=verb) Msg() << "Field " << key << " defaults to " << val << "\n";
+    if(this->verbosity>=verb) Msg() << "Field " << key << " defaults to " << val << "\n";
     return val;
 }
 
@@ -34,7 +34,7 @@ std::vector<T> IO_<Base>::GetVector(KeyCRef key) const {
 }
 
 template<typename Base> template<typename T, size_t d>
-TraitsIO::Array<T, d> IO_<Base>::GetArray(KeyCRef key) const {
+typename Base::template Array<T, d> IO_<Base>::GetArray(KeyCRef key) const {
     auto dimsPtr = this->template GetDimsPtr<T>(key);
     auto & dims = dimsPtr.first;
     
@@ -69,7 +69,7 @@ TraitsIO::Array<T, d> IO_<Base>::GetArray(KeyCRef key) const {
 }
 
 template<typename Base> template<typename T>
-std::vector<TraitsIO::DiscreteType> IO_<Base>::GetDimensions(KeyCRef key) const {
+auto IO_<Base>::GetDimensions(KeyCRef key) const -> std::vector<DiscreteType> {
     auto dims = this->template GetDimsPtr<T>(key).first;
     switch (arrayOrdering) {
         case ArrayOrdering::Default: return  dims;
@@ -159,12 +159,13 @@ IO_<Base>::~IO_(){
         std::ostringstream oss;
         for(KeyCRef key : this->unused) oss << key << " ";
         this->SetString("unused", oss.str());
-        if(verbosity>=1) Msg() << "Unused fields : " << oss.str() << "\n";
+        if(this->verbosity>=1) Msg() << "Unused fields : " << oss.str() << "\n";
     }
     if(!this->defaulted.empty()){
         std::ostringstream oss;
         for(KeyCRef key : this->defaulted) oss << key << " ";
         this->SetString("defaulted", oss.str());
+        if(this->verbosity>=2) Msg() << "Defaulted fields : " << oss.str() << "\n";
     }
 }
 #endif /* IO_hxx */
