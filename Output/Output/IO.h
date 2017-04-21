@@ -28,8 +28,25 @@ struct TraitsIO {
     typedef std::string const & KeyCRef;
     typedef Array<double,1>::DiscreteType DiscreteType;
     int verbosity=1;
+    TraitsIO(const TraitsIO &) = delete;
+    TraitsIO(){};
+    enum class SetterTag {User,Compute,Unknown};
+    SetterTag currentSetter = SetterTag::User;
 protected:
     template<size_t d> using DimType = LinearAlgebra::Point<DiscreteType,d>;
+    mutable std::set<KeyType> unused, defaulted, visitedUnset;
+};
+
+template<bool warn, typename IO> struct _Msg {
+    std::ostringstream oss;
+    const IO * pio = nullptr;
+    _Msg(){};
+    _Msg(const IO * _pio):pio(_pio){};
+    ~_Msg(){
+        const std::string & msg = oss.str();
+        if(pio) pio->SendMsg(warn,msg);
+        else IO::StaticSendMsg(warn,msg);}
+    template<typename T> _Msg & operator << (const T & t){oss << t; return *this;}
 };
 
 /*
@@ -40,17 +57,15 @@ protected:
  bool HasField(KeyCRef) const;
  std::string GetString(KeyCRef) const;
  void SetString(KeyCRef, std::string);
- typedef double ScalarType; // Or any suitable scalartype
+ typedef double ScalarType; // Or any suitable ScalarType
 
  protected:
  template<typename T> std::pair<std::vector<DiscreteType>,const T*> GetDimsPtr(KeyCRef) const;
  template<typename T, size_t d, typename F> void Set(KeyCRef, DimType<d>, const F &);
- mutable std::set<KeyType> unused, defaulted;
  */
 
 enum class ArrayOrdering {Default, Reversed, Transposed};
-template<> char const * enumStrings<ArrayOrdering>::data[] = {
-    "Default", "Reversed", "Transposed"};
+template<> char const * enumStrings<ArrayOrdering>::data[] = {"Default", "Reversed", "Transposed"};
 
 template<typename Base> struct IO_ : Base {
     typedef Base Superclass;
@@ -59,11 +74,10 @@ template<typename Base> struct IO_ : Base {
     template<size_t VD> using DimType = typename Superclass::template DimType<VD>;
     
     using Base::Base;
-    IO_(const IO_ &) = delete;
     ~IO_();
     
-    typedef typename Base::template Msg_<true> WarnMsg;
-    typedef typename Base::template Msg_<false> Msg;
+    typedef _Msg<false,IO_> Msg;
+    typedef _Msg<true,IO_> WarnMsg;
     using Base::GetString;
     std::string GetString(KeyCRef, const std::string &, int=1) const;
     
@@ -86,6 +100,8 @@ protected:
     template<typename T, size_t d> struct ReverseVals;
     template<typename T, size_t d> void Set(KeyCRef, DimType<d>, const T*);
 };
+
+
 
 #include "IO.hxx"
 

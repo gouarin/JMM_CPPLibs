@@ -10,6 +10,7 @@ template<typename Base>
 std::string IO_<Base>::GetString(KeyCRef key, const std::string & val, int verb) const {
     if(Base::HasField(key)) return Base::GetString(key);
     if(this->verbosity>=verb) Msg() << "Field " << key << " defaults to " << val << "\n";
+    this->visitedUnset.erase(key); this->defaulted.insert(key);
     return val;
 }
 
@@ -25,6 +26,7 @@ template<typename Base> template<typename T>
 T IO_<Base>::Get(KeyCRef key, const T & val, int verb) const {
     if(this->HasField(key)) return Get<T>(key);
     if(this->verbosity>=verb) Msg() << "Field " << key << " defaults to " << val << "\n";
+    this->visitedUnset.erase(key); this->defaulted.insert(key);
     return val;
 }
 
@@ -155,17 +157,6 @@ struct IO_<Base>::ReverseVals {
 
 template<typename Base>
 IO_<Base>::~IO_(){
-    if(!this->unused.empty()){
-        std::ostringstream oss;
-        for(KeyCRef key : this->unused) oss << key << " ";
-        this->SetString("unused", oss.str());
-        if(this->verbosity>=1) Msg() << "Unused fields : " << oss.str() << "\n";
-    }
-    if(!this->defaulted.empty()){
-        std::ostringstream oss;
-        for(KeyCRef key : this->defaulted) oss << key << " ";
-        this->SetString("defaulted", oss.str());
-        if(this->verbosity>=2) Msg() << "Defaulted fields : " << oss.str() << "\n";
-    }
+    this->UsageReport();
 }
 #endif /* IO_hxx */

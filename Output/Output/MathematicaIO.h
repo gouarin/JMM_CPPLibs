@@ -45,7 +45,7 @@ namespace Mathematica {
 		bool HasField(KeyCRef) const;
         bool EraseField(KeyCRef);
 		std::string GetString(KeyCRef) const;
-		void SetString(KeyCRef, std::string);
+		void SetString(KeyCRef, const std::string &);
 				
 		// Conversion from Wolfram MTensors to the used IO types
 		template<typename T> std::vector<T> MTensorToVector(MTensor);

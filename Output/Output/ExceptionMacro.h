@@ -6,12 +6,16 @@
 
 #include <sstream>
 
+struct JMMCppException : std::logic_error {
+    typedef std::logic_error Superclass;
+    using Superclass::Superclass;};
+
 #define ExceptionMacro(msg) \
 { \
 std::ostringstream message; \
 message << msg << "\n" << \
 "File: " << __FILE__ << ", Line: " << __LINE__ << "\n"; \
-throw std::logic_error(message.str()); \
+throw JMMCppException(message.str()); \
 }
 
 #endif /* ExceptionMacro_h */

@@ -93,7 +93,7 @@ std::string BaseIO::GetString(KeyCRef key) const {
 	return val.str;
 }
 
-void BaseIO::SetString(KeyCRef key, std::string val) {
+void BaseIO::SetString(KeyCRef key, const std::string & val) {
 	SetDefined(key);
 	InputFormatElement format;
 	format.str = val;
