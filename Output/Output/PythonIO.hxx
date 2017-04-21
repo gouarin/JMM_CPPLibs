@@ -8,8 +8,7 @@ void PythonIO::PySetArray(KeyCRef key, ndarray arr) {
     if(arr.get_dtype() != dtype::get_builtin<double>())
         ExceptionMacro("PythonIO error : ndarray " << key << " is not made of doubles");
     
-    SetDefined(key);
-    RawElement & raw = rawElems.find(key)->second;
+    RawElement & raw = CreateElement(key);
     raw.Clear(currentSetter);
     const int ndims = arr.get_nd();
     raw.dims.resize(ndims);

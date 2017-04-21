@@ -17,8 +17,8 @@ struct BaseIO::RawElement {
     
     SetterTag setter = SetterTag::Unknown;
     
-    bool IsString() const {return !str.empty();}
-    bool IsScalar() const {return !IsString() && dims.size()==0;}
+    bool IsString() const {return data.empty() && dims.size()==0;}
+    bool IsScalar() const {return !data.empty() && dims.size()==0;}
     void Clear(SetterTag tag) {str.clear(); dims.clear(); data.clear();setter=tag;}
     RawElement(SetterTag tag):setter(tag){};
     DiscreteType FlattenedLength() const {
@@ -52,8 +52,7 @@ std::string BaseIO::GetString(KeyCRef key) const {
 }
 
 void BaseIO::SetString(KeyCRef key, const std::string & val) {
-    SetDefined(key);
-    RawElement & raw = rawElems.find(key)->second;
+    RawElement & raw = CreateElement(key);
     raw.str = val;
 }
 
@@ -102,12 +101,16 @@ const BaseIO::RawElement & BaseIO::GetRaw(KeyCRef key, bool forUse) const {
 }
 
 
-void BaseIO::SetDefined(KeyCRef key) {
+auto BaseIO::CreateElement(KeyCRef key) -> RawElement & {
     auto it = rawElems.find(key);
     if (it != rawElems.end() && verbosity>=1){
-        _Msg<true,BaseIO>(this) << "BaseIO: redefining field " << key << ".\n";}
-    rawElems.insert(std::pair<std::string,RawElement>(key,RawElement(currentSetter)));
+        _Msg<true,BaseIO>(this) << "BaseIO: redefining field " << key << ".\n";
+        it->second.Clear(currentSetter);
+    } else {
+        it= rawElems.insert(std::pair<std::string,RawElement>(key,RawElement(currentSetter))).first;
+    }
     unused.insert(key);
+    return it->second;
 }
 
 template<typename T> std::pair<std::vector<BaseIO::DiscreteType>, const T*> BaseIO::GetDimsPtr(KeyCRef key) const {
@@ -118,7 +121,7 @@ template<typename T> std::pair<std::vector<BaseIO::DiscreteType>, const T*> Base
     const DiscreteType sizeRatio = sizeof(T) / sizeof(ScalarType);
     if (!std::is_same<T, ScalarType>::value) {
         if (dims.empty() || dims[0] != sizeRatio)
-            ExceptionMacro("PythonIO input error first dimension " << (dims.empty() ? 0 : dims[0]) << " of field "
+            ExceptionMacro("BaseIO input error first dimension " << (dims.empty() ? 0 : dims[0]) << " of field "
                            << key << " does not match expected value " << sizeRatio << ".");
         dims.erase(dims.begin());
     }
@@ -126,13 +129,11 @@ template<typename T> std::pair<std::vector<BaseIO::DiscreteType>, const T*> Base
 }
 
 template<typename T, size_t d, typename F> void BaseIO::Set(KeyCRef key, DimType<d> dims, const F & vals) {
-    SetDefined(key);
-    
     static_assert(sizeof(T) % sizeof(ScalarType) == 0, "Type is not built of scalars.");
     const ScalarType sizeRatio = sizeof(T) / sizeof(ScalarType);
     const DiscreteType size = dims.ProductOfCoordinates();
     
-    RawElement & raw = rawElems.find(key)->second;
+    RawElement & raw = CreateElement(key);
     raw.data.resize(sizeRatio*size);
     
     T* input = reinterpret_cast<T*>(&raw.data[0]);

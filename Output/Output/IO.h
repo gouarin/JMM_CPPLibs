@@ -22,6 +22,8 @@
 #define __IgnoreTrailingSingletonDimensions 0
 #endif
 
+
+
 struct TraitsIO {
     template<typename TC, size_t VD> using Array = LinearAlgebra::Array<TC,VD>;
     typedef std::string KeyType;
@@ -32,6 +34,9 @@ struct TraitsIO {
     TraitsIO(){};
     enum class SetterTag {User,Compute,Unknown};
     SetterTag currentSetter = SetterTag::User;
+
+    enum class ArrayOrdering {Default, Reversed, Transposed};
+    ArrayOrdering arrayOrdering = ArrayOrdering::Default;
 protected:
     template<size_t d> using DimType = LinearAlgebra::Point<DiscreteType,d>;
     mutable std::set<KeyType> unused, defaulted, visitedUnset;
@@ -49,6 +54,8 @@ template<bool warn, typename IO> struct _Msg {
     template<typename T> _Msg & operator << (const T & t){oss << t; return *this;}
 };
 
+template<> char const * enumStrings<TraitsIO::ArrayOrdering>::data[] = {"Default", "Reversed", "Transposed"};
+
 /*
  Base must inherit TraitsIO (or redefine similar traits) and provide the following
  
@@ -64,12 +71,10 @@ template<bool warn, typename IO> struct _Msg {
  template<typename T, size_t d, typename F> void Set(KeyCRef, DimType<d>, const F &);
  */
 
-enum class ArrayOrdering {Default, Reversed, Transposed};
-template<> char const * enumStrings<ArrayOrdering>::data[] = {"Default", "Reversed", "Transposed"};
 
 template<typename Base> struct IO_ : Base {
     typedef Base Superclass;
-    Redeclare4Types(FromSuperclass,KeyType,KeyCRef,DiscreteType,ScalarType);
+    Redeclare5Types(FromSuperclass,KeyType,KeyCRef,DiscreteType,ScalarType,ArrayOrdering);
     template<typename TC, size_t VD> using Array = typename Superclass::template Array<TC,VD>;
     template<size_t VD> using DimType = typename Superclass::template DimType<VD>;
     
@@ -91,8 +96,6 @@ template<typename Base> struct IO_ : Base {
     template<typename T> void Set(KeyCRef, const T &);
     template<typename T> void SetVector(KeyCRef, const std::vector<T> &);
     template<typename T, size_t d> void SetArray(KeyCRef, const Array<T, d> &);
-
-    ArrayOrdering arrayOrdering = ArrayOrdering::Default;
 protected:
     template<typename V> static V TransposeDims(const V &);
     template<typename V> static V ReverseDims(const V &);

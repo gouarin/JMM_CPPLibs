@@ -28,7 +28,7 @@ protected:
     std::map<KeyType, RawElement> rawElems;
     
     const RawElement & GetRaw(KeyCRef,bool=true) const;
-    void SetDefined(KeyCRef);
+    RawElement & CreateElement(KeyCRef);
     void SetUsed(KeyCRef);
     SetterTag GetSetter(KeyCRef) const;
     void UsageReport();

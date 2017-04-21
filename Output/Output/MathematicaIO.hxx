@@ -5,221 +5,66 @@
 #ifndef MathematicaIO_hxx
 #define MathematicaIO_hxx
 
-// Protected fields
-
-struct BaseIO::InputFormatElement {
-	// Case of a string field
-	std::string str;
-
-	// case of a numerical field
-	std::vector<DiscreteType> dims;
-    std::vector<ScalarType> data;
-
-	// in case of vector valued vectors:
-	DiscreteType sizeRatio;
-};
-
-const BaseIO::InputFormatElement & BaseIO::GetInputFormat(KeyCRef key) const {
-	const auto it = inputOutputFormat.find(key);
-	if (it == inputOutputFormat.end()) ExceptionMacro("MathematicaIO import error : field " + key + " not found.");
-	unused.erase(key);
-	return it->second;
+void MathematicaIO::StaticSendMsg(bool warn, const std::string & msg, WolframLibraryData libData){
+    if(!libData) return;
+    std::ostringstream oss;
+    oss << "WriteString[\"stdout\",\"";
+    if(warn) oss << "***** Warning ! *****\n" << msg << "********************\n";
+    else oss << msg;
+    if(!libData) return;
+    oss << "\"]";
+    libData->evaluateExpression(libData,(char*)oss.str().c_str(),6,0,0);
 }
 
-
-void BaseIO::SetDefined(KeyCRef key) {
-    if (defined.find(key) != defined.end() && verbosity>=1){
-        Msg_<true>() << "MathematicaIO warning: redefining field " << key << ".\n";}
-	defined.insert(key);
-    unused.insert(key);
-}
-
-
-template<typename T> std::pair<std::vector<BaseIO::DiscreteType>, const T*> BaseIO::GetDimsPtr(KeyCRef key) const {
-	const auto & format = GetInputFormat(key);
-	auto dims = format.dims;
-	static_assert(sizeof(T) % sizeof(ScalarType) == 0, "Field is not made of scalars.");
-	const DiscreteType sizeRatio = sizeof(T) / sizeof(ScalarType);
-	if (!std::is_same<T, ScalarType>::value) {
-		if (dims.empty() || dims[0] != sizeRatio)
-			ExceptionMacro("MathematicaIO input error first dimension " << (dims.empty() ? 0 : dims[0]) << " of field " << key << " does not match expected value " << sizeRatio << ".");
-		dims.erase(dims.begin());
-	}
-	return {dims, reinterpret_cast<const T*>(&format.data[0]) };
-}
-
-template<typename T, size_t d, typename F> void BaseIO::Set(KeyCRef key, DimType<d> dims, const F & vals) {
-	SetDefined(key);
-	
-	static_assert(sizeof(T) % sizeof(ScalarType) == 0, "Type is not built of scalars.");
-	const ScalarType sizeRatio = sizeof(T) / sizeof(ScalarType);
-	const DiscreteType size = dims.ProductOfCoordinates();
-	
-    InputFormatElement & format = inputOutputFormat[key];
-    format.data.resize(sizeRatio*size);
-
-	T* input = reinterpret_cast<T*>(&format.data[0]);
-	for (DiscreteType i = 0; i<size; ++i)
-		input[i] = vals(i);
-
-	int dim = dims.Dimension;
-	format.dims.resize(dim);
-	for (int i = 0; i<dim; ++i) {
-		format.dims[i] = dims[i];
-	}
-	format.sizeRatio = sizeRatio;
-}
-
-
-// Public fields
-
-bool BaseIO::HasField(KeyCRef key) const {
-	if (inputOutputFormat.find(key) != inputOutputFormat.end()) return true;
-	defaulted.insert(key);
-	return false;
-}
-
-bool BaseIO::EraseField(KeyCRef key) {
-    defined.erase(key);
-    unused.erase(key);
-    return inputOutputFormat.erase(key);
-}
-
-std::string BaseIO::GetString(KeyCRef key) const {
-	const auto & val = GetInputFormat(key);
-	if (!val.data.empty())
-		ExceptionMacro("MathematicaIO import error : field " << key << " is not a string.");
-    unused.erase(key);
-	return val.str;
-}
-
-void BaseIO::SetString(KeyCRef key, const std::string & val) {
-	SetDefined(key);
-	InputFormatElement format;
-	format.str = val;
-	inputOutputFormat[key] = format;
-}
-
-template<typename T> std::vector<T> BaseIO::MTensorToVector(MTensor vectorMath_T) {
-	ScalarType* vectorMath = libData->MTensor_getRealData(vectorMath_T);
-	int vectorMathLen = libData->MTensor_getFlattenedLength(vectorMath_T);
-	std::vector<T> vectorOut(vectorMath, vectorMath + vectorMathLen);
-	return vectorOut;
-}
-
-template<typename T, size_t d> TraitsIO::Array<T,d> BaseIO::MTensorToArray(MTensor arrayMath_T) {
+void MathematicaIO::MathSetArray(KeyCRef key,const MTensor val){
+    // Get the MTensor data
+    double* arrayMath = libData->MTensor_getRealData(val);// The data
+    int arrayMathLen = libData->MTensor_getFlattenedLength(val);// Flattened length
+    const int ndims = libData->MTensor_getRank(val); // Array dimension
+    mint const* dimsMath = libData->MTensor_getDimensions(val);// Dimensions
     
-	// Get the MTensor data
-	double* arrayMath = libData->MTensor_getRealData(arrayMath_T);// The data
-	int arrayMathLen = libData->MTensor_getFlattenedLength(arrayMath_T);// Flattened length
-	mint const* dimsMath = libData->MTensor_getDimensions(arrayMath_T);// Dimensions
-
-	// Copy dimensions to the array dimensions
-	TraitsIO::Array<T, d> arrayOut;
-	for (int i = 0; i < d; i++)
-		arrayOut.dims[i] = dimsMath[d - 1 - i];
-
-	// Copy the MTensor data to the array
-	arrayOut.resize(arrayMathLen);
-	memcpy(&arrayOut[0], &arrayMath[0], arrayMathLen * sizeof(ScalarType));
-
-	// Return the array
-	return arrayOut;
+    // Copy-reverse dimensions to the array dimensions
+    RawElement & raw = CreateElement(key);
+    raw.dims.resize(ndims);
+    for(int i=0; i<ndims; ++i) {
+        raw.dims[i]=dimsMath[ndims-i-1];}
+    
+    // Copy data
+    raw.data.resize(arrayMathLen);
+    std::copy(arrayMath, arrayMath+arrayMathLen,raw.data.begin());
 }
 
-template<typename T> MTensor BaseIO::VectorToMTensor(const std::vector<T> & vector) {
+MTensor MathematicaIO::MathGetArray(KeyCRef key,int ndims) const{
+    const RawElement & raw = GetRaw(key);
+    if(ndims!=raw.dims.size()){
+        ExceptionMacro("MathGetArray error: tensor " << key << " has rank " << raw.dims.size() << " and not " << ndims);}
     
-	// Dimension (rank) of the vector is 1
-	int d = 1;
-
-	// Get size of the vector
-	mint size[d];
-	size[0] = vector.size();
-
-	// Create empty MTensor
-	MTensor vectorMath_T;
-	libData->MTensor_new(MType_Real, d, size, &vectorMath_T);
-
-	// Copy data to the MTensor
-	ScalarType* vectorMath;
-	vectorMath = libData->MTensor_getRealData(vectorMath_T);
-    static_assert(std::is_same<T,ScalarType>::value,"MTensor only accepts double values");
-	memcpy(&vectorMath[0], &vector[0], size[0] * sizeof(ScalarType));
-
-	// Return the MTensor
-	return vectorMath_T;
+    // Create empty MTensor and copy-reverse dimensions
+    std::vector<mint> dims(ndims);
+    for(int i=0; i<ndims; ++i) dims[i] = raw.dims[ndims-i-1];
+    
+    MTensor vectorMath_T;
+    libData->MTensor_new(MType_Real, ndims, &dims[0], &vectorMath_T);
+    
+    // Copy data and return
+    std::copy(raw.data.begin(),raw.data.begin()+raw.FlattenedLength(),libData->MTensor_getRealData(vectorMath_T));
+    return vectorMath_T;
 }
 
-template<typename T, int d> MTensor BaseIO::ArrayToMTensor(const TraitsIO::Array<T, d> & arrayIn) {
-	// Get size of the array
-	mint size[d];
-	mint flattenedLength = 0;
-	for (int i = 0; i < d; i++) {
-		size[i] = arrayIn.dims[d - 1 - i];
-		flattenedLength *= size[i];
-	}
-    flattenedLength*=sizeof(T)/sizeof(ScalarType);
-    static_assert(sizeof(T)%sizeof(ScalarType)==0, "ArrayToMTensor error : type is not made of scalars");
-    
-
-	// Create empty MTensor
-	MTensor arrayMath_T;
-	libData->MTensor_new(MType_Real, d, size, &arrayMath_T);
-
-	// Copy data to the MTensor
-	ScalarType* arrayMath;
-	arrayMath = libData->MTensor_getRealData(arrayMath_T);
-    memcpy(&arrayMath[0], reinterpret_cast<ScalarType*>(&arrayIn[0]), flattenedLength * sizeof(ScalarType));
-
-	// Return the MTensor
-	return arrayMath_T;
-}
-
-template<typename T, int d> MTensor BaseIO::GetMTensor(KeyCRef key) {
-    
-	// Get information about the formatting of the data
-	const InputFormatElement & format = GetInputFormat(key);
-	
-	// Set size of the array
-    const size_t nDims = format.dims.size() + (format.sizeRatio!=1);
-    
-    if(nDims!=d)
-        ExceptionMacro("Mathematica Export error : Field " << key << " has total depth " << nDims
-                                << " distinct from requested depth " << d);
-    
-    mint size[d];
-	for (int i = 0; i < format.dims.size(); i++) {
-		size[i] = format.dims[format.dims.size() - 1 - i];
-	}
-	// For vector valued vectors the 1D vector is actually a 2D vector
-	if (d > format.dims.size()) {
-		size[d-1] = format.sizeRatio;
-	}
-
-	// Create empty MTensor
-	MTensor arrayMath_T;
-	libData->MTensor_new(MType_Real, d, size, &arrayMath_T);
-	mint flattenedLength = libData->MTensor_getFlattenedLength(arrayMath_T);
-
-	// Copy data to MTensor
-	ScalarType* arrayMath = libData->MTensor_getRealData(arrayMath_T);;
-	memcpy(&arrayMath[0], &format.data[0], flattenedLength * sizeof(ScalarType));
-		
-	// Return the MTensor
-	return arrayMath_T;
-}
-
-
-
-// Constructor and destructor
-BaseIO::BaseIO(WolframLibraryData libDataIn) {
-	
-	libData = libDataIn;
-	SetString("arrayOrdering", "Reversed");
-	
-}
-
-BaseIO::~BaseIO() {
+std::string MathematicaIO::GetComputedKeys() const {
+    std::ostringstream oss;
+    oss << "{";
+    for(const auto & a : rawElems){
+        if(a.second.setter == SetterTag::Compute) {
+            oss << "{" << a.first << ",";
+            if(a.second.IsString()) {oss << "String";}
+            else if(a.second.IsScalar()) {oss << "Real";}
+            else oss << "{Real," << a.second.dims.size() << "}";
+            oss << "},";}
+    }
+    if(!rawElems.empty()){oss.seekp(-1,oss.cur);}
+    oss << "}";
+    return oss.str();
 }
 
 #endif /* MathematicaIO_hxx */

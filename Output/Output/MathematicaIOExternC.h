@@ -89,7 +89,7 @@ extern "C"
         MathematicaTryCatch(1,
                             io.SetWolframLibraryData(libData);
                             const std::string key = MArgument_getUTF8String(Args[0]);
-                            MArgument_setMTensor(Res, io.VectorToMTensor<double>(io.GetVector<double>(key)));
+                            MArgument_setMTensor(Res, io.MathGetArray(key,1));
                             )
 	}
     
@@ -99,7 +99,7 @@ extern "C"
                             io.SetWolframLibraryData(libData);
                             const std::string key = MArgument_getUTF8String(Args[0]);
                             MTensor val = MArgument_getMTensor(Args[1]);
-                            io.SetVector<double>(key, io.MTensorToVector<double>(val));
+                            io.MathSetArray(key, val);
                             )
 	}
 
@@ -108,64 +108,17 @@ extern "C"
         MathematicaTryCatch(2,
                             io.SetWolframLibraryData(libData);
                             const std::string key = MArgument_getUTF8String(Args[0]);
-                            const int d = MArgument_getInteger(Args[1]); // Array dimension
-                            switch (d) {
-                                case 1:MArgument_setMTensor(Res, (io.GetMTensor<double, 1>(key)));break;
-                                case 2:MArgument_setMTensor(Res, (io.GetMTensor<double, 2>(key)));break;
-                                case 3:MArgument_setMTensor(Res, (io.GetMTensor<double, 3>(key)));break;
-                                case 4:MArgument_setMTensor(Res, (io.GetMTensor<double, 4>(key)));break;
-                                case 5:MArgument_setMTensor(Res, (io.GetMTensor<double, 5>(key)));break;
-                                case 6:MArgument_setMTensor(Res, (io.GetMTensor<double, 6>(key)));break;
-                                default:
-                                    ExceptionMacro("GetArray error : unsupported dimension");
-                            }
+                            const int ndims = MArgument_getInteger(Args[1]); // Array dimension
+                            MArgument_setMTensor(Res,io.MathGetArray(key,ndims));
                             )
 	}
     DLLEXPORT int SetArray(WolframLibraryData libData, mint Argc, MArgument *Args, MArgument Res){
-        /*MathematicaTryCatch( // Macro fails to compile for unknown reason.
-         io.SetWolframLibraryData(libData);
-         const std::string key = MArgument_getUTF8String(Args[0]);
-         const MTensor val = MArgument_getMTensor(Args[1]);
-         int d = libData->MTensor_getRank(val); // Array dimension
-         if(libData->MTensor_getFlattenedLength(val)==0){
-         ExceptionMacro("SetArray Error: Empty tensor for key " << key << "\n");}
-         switch (d) {
-         case 1: io.SetArray<double, 1>(key, io.MTensorToArray<double, 1>(val)); break;
-         case 2: io.SetArray<double, 2>(key, io.MTensorToArray<double, 2>(val)); break;
-         case 3: io.SetArray<double, 3>(key, io.MTensorToArray<double, 3>(val)); break;
-         case 4: io.SetArray<double, 4>(key, io.MTensorToArray<double, 4>(val)); break;
-         case 5: io.SetArray<double, 5>(key, io.MTensorToArray<double, 5>(val)); break;
-         case 6: io.SetArray<double, 6>(key, io.MTensorToArray<double, 6>(val)); break;
-         default:
-         ExceptionMacro("GetArray error : unsupported dimension");
-         }
-         )*/
-        const int nArgs=2;
-        if(Argc!=nArgs) {
-            IO::WarnMsg() << "Library call error : number of arguments " << Argc << " differs from expected " << nArgs << ".\n";
-            return LIBRARY_TYPE_ERROR;}
-        try{
-            io.SetWolframLibraryData(libData);
-            const std::string key = MArgument_getUTF8String(Args[0]);
-            const MTensor val = MArgument_getMTensor(Args[1]);
-            int d = libData->MTensor_getRank(val); // Array dimension
-            if(libData->MTensor_getFlattenedLength(val)==0){
-                ExceptionMacro("SetArray Error: Empty tensor for key " << key << "\n");}
-            switch (d) {
-                case 1: io.SetArray<double, 1>(key, io.MTensorToArray<double, 1>(val)); break;
-                case 2: io.SetArray<double, 2>(key, io.MTensorToArray<double, 2>(val)); break;
-                case 3: io.SetArray<double, 3>(key, io.MTensorToArray<double, 3>(val)); break;
-                case 4: io.SetArray<double, 4>(key, io.MTensorToArray<double, 4>(val)); break;
-                case 5: io.SetArray<double, 5>(key, io.MTensorToArray<double, 5>(val)); break;
-                case 6: io.SetArray<double, 6>(key, io.MTensorToArray<double, 6>(val)); break;
-                default:
-                    ExceptionMacro("GetArray error : unsupported dimension");
-            }
-            return LIBRARY_NO_ERROR;
-        } catch (std::logic_error & e){
-            IO::WarnMsg() << "Exception caught. " << e.what(); \
-            return LIBRARY_FUNCTION_ERROR;
-        }
+        MathematicaTryCatch(2,
+                            io.SetWolframLibraryData(libData);
+                            const std::string key = MArgument_getUTF8String(Args[0]);
+                            const MTensor val = MArgument_getMTensor(Args[1]);
+                            io.MathSetArray(key, val);
+                            )
     }
 }//End of Extern "C"
 

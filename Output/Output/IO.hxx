@@ -52,7 +52,7 @@ typename Base::template Array<T, d> IO_<Base>::GetArray(KeyCRef key) const {
     std::copy(dims.begin(), dims.end(), result.dims.begin());
     result.resize(result.dims.ProductOfCoordinates());
     
-    switch (arrayOrdering) {
+    switch (this->arrayOrdering) {
         case ArrayOrdering::Default: {
             std::copy(dimsPtr.second, dimsPtr.second+result.size(), result.begin());
             break;}
@@ -73,7 +73,7 @@ typename Base::template Array<T, d> IO_<Base>::GetArray(KeyCRef key) const {
 template<typename Base> template<typename T>
 auto IO_<Base>::GetDimensions(KeyCRef key) const -> std::vector<DiscreteType> {
     auto dims = this->template GetDimsPtr<T>(key).first;
-    switch (arrayOrdering) {
+    switch (this->arrayOrdering) {
         case ArrayOrdering::Default: return  dims;
         case ArrayOrdering::Transposed: return TransposeDims(dims);
         case ArrayOrdering::Reversed: return ReverseDims(dims);
@@ -101,7 +101,7 @@ void IO_<Base>::SetVector(KeyCRef key, const std::vector<T> & val) {
 
 template<typename Base> template<typename T, size_t d>
 void IO_<Base>::SetArray(KeyCRef key, const Array<T, d> & val) {
-    switch (arrayOrdering) {
+    switch (this->arrayOrdering) {
         case ArrayOrdering::Default: return Set<T,d>(key,val.dims,&val[0]);
         case ArrayOrdering::Transposed:
             return Base::template Set<T,d>(key, TransposeDims(val.dims),
