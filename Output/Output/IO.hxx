@@ -53,18 +53,23 @@ typename Base::template Array<T, d> IO_<Base>::GetArray(KeyCRef key) const {
     result.resize(result.dims.ProductOfCoordinates());
     
     switch (this->arrayOrdering) {
-        case ArrayOrdering::Default: {
+        case ArrayOrdering::RowMajor: {
             std::copy(dimsPtr.second, dimsPtr.second+result.size(), result.begin());
             break;}
-        case ArrayOrdering::Transposed: {
+        case ArrayOrdering::YXZ_RowMajor: {
             const TransposeVals<T,d> TrVals(result.dims, dimsPtr.second);
             result.dims = TransposeDims(result.dims);
             for(size_t i=0; i<result.size(); ++i) result[i] = TrVals((DiscreteType)i);
             break;}
-        case ArrayOrdering::Reversed: {
+        case ArrayOrdering::ColumnMajor: {
             const ReverseVals<T,d> RevVals(result.dims, dimsPtr.second);
             result.dims = ReverseDims(result.dims);
             for(size_t i=0; i<result.size(); ++i) result[i] = RevVals((DiscreteType)i);
+            break;}
+        case ArrayOrdering::YXZ_ColumnMajor: {
+            const TransposeReverseVals<T,d> TrRevVals(result.dims, dimsPtr.second);
+            result.dims = TransposeDims(ReverseDims(result.dims));
+            for(size_t i=0; i<result.size(); ++i) result[i] = TrRevVals((DiscreteType)i);
             break;}
     }
     return result;
@@ -74,9 +79,10 @@ template<typename Base> template<typename T>
 auto IO_<Base>::GetDimensions(KeyCRef key) const -> std::vector<DiscreteType> {
     auto dims = this->template GetDimsPtr<T>(key).first;
     switch (this->arrayOrdering) {
-        case ArrayOrdering::Default: return  dims;
-        case ArrayOrdering::Transposed: return TransposeDims(dims);
-        case ArrayOrdering::Reversed: return ReverseDims(dims);
+        case ArrayOrdering::RowMajor: return  dims;
+        case ArrayOrdering::YXZ_RowMajor: return TransposeDims(dims);
+        case ArrayOrdering::ColumnMajor: return ReverseDims(dims);
+        case ArrayOrdering::YXZ_ColumnMajor: return TransposeDims(ReverseDims(dims));
     }
 }
 
@@ -102,13 +108,16 @@ void IO_<Base>::SetVector(KeyCRef key, const std::vector<T> & val) {
 template<typename Base> template<typename T, size_t d>
 void IO_<Base>::SetArray(KeyCRef key, const Array<T, d> & val) {
     switch (this->arrayOrdering) {
-        case ArrayOrdering::Default: return Set<T,d>(key,val.dims,&val[0]);
-        case ArrayOrdering::Transposed:
+        case ArrayOrdering::RowMajor: return Set<T,d>(key,val.dims,&val[0]);
+        case ArrayOrdering::YXZ_RowMajor:
             return Base::template Set<T,d>(key, TransposeDims(val.dims),
                                            TransposeVals<T,d>(val.dims,&val[0]) );
-        case ArrayOrdering::Reversed:
+        case ArrayOrdering::ColumnMajor:
             return Base::template Set<T,d>(key, ReverseDims(val.dims),
                                            ReverseVals<T,d>(val.dims,&val[0]) );
+        case ArrayOrdering::YXZ_ColumnMajor:
+            return Base::template Set<T,d>(key,ReverseDims(TransposeDims(val.dims)), // Corrected
+                                           ReverseTransposeVals<T,d>(val.dims,&val[0]) );
     }
 }
 
@@ -151,6 +160,28 @@ struct IO_<Base>::ReverseVals {
     :pVals(pVals_){a.dims=dims; ta.dims=IO_::ReverseDims(dims);}
     const T & operator()(DiscreteType index) const {
         return pVals[a.Convert(ReverseDims(ta.Convert(index)))];}
+};
+
+// Transposition - Reversal composed
+
+template<typename Base> template<typename T, size_t d>
+struct IO_<Base>::TransposeReverseVals {
+    const T * const pVals;
+    Array<T,d> a, ta;
+    TransposeReverseVals(const DimType<d> & dims, const T * pVals_)
+    :pVals(pVals_){a.dims=dims; ta.dims=IO_::TransposeDims(ReverseDims(dims));}
+    const T & operator()(DiscreteType index) const {
+        return pVals[a.Convert(ReverseDims(TransposeDims(ta.Convert(index))))];}
+};
+
+template<typename Base> template<typename T, size_t d>
+struct IO_<Base>::ReverseTransposeVals {
+    const T * const pVals;
+    Array<T,d> a, ta;
+    ReverseTransposeVals(const DimType<d> & dims, const T * pVals_)
+    :pVals(pVals_){a.dims=dims; ta.dims=IO_::ReverseDims(TransposeDims(dims));}
+    const T & operator()(DiscreteType index) const {
+        return pVals[a.Convert(TransposeDims(ReverseDims(ta.Convert(index))))];} //Corrected
 };
 
 // Destruction

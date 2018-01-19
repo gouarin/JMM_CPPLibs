@@ -12,7 +12,7 @@ A simple interface for making Python data available to the c++ code.
 
 struct PythonIO : BaseIO {
     // An adaptation of the file IO:
-    PythonIO(){arrayOrdering = ArrayOrdering::Reversed;};
+    PythonIO(){arrayOrdering = ArrayOrdering::YXZ_RowMajor;};
     typedef boost::python::numpy::ndarray ndarray;
     ndarray PyGetArray(KeyCRef) const;
     void PySetArray(KeyCRef, ndarray);

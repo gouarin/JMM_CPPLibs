@@ -17,7 +17,9 @@ void MexIO::StaticSendMsg(bool warn, std::string str){
             }
             printf(str.c_str());
         }
-    if((clock()-top)>= 1.0 * CLOCKS_PER_SEC){
+    std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
+    int elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now-top).count();
+    if(elapsed>=1000){
         mexEvalString("drawnow");
         mexEvalString("pause(0.001)");
 //        printf("elapsed : %f.\n", double(clock()-top)/CLOCKS_PER_SEC);
@@ -75,6 +77,7 @@ template<typename T> std::pair<std::vector<TraitsIO::DiscreteType>,const T*> Mex
     const mwSize ArrayDimension = mxGetNumberOfDimensions(p);
     
     std::vector<DiscreteType> dims(mxSize, mxSize+ArrayDimension);
+    
     if(!std::is_same<T, ScalarType>::value){
         const DiscreteType sizeRatio = sizeof(T)/sizeof(ScalarType);
         if(dims.empty() || dims[0]!=sizeRatio)
@@ -85,7 +88,9 @@ template<typename T> std::pair<std::vector<TraitsIO::DiscreteType>,const T*> Mex
     while(!dims.empty() && dims.back()==1)
         dims.pop_back(); // Eliminate trailing singleton dimensions.
     
-    return {dims,reinterpret_cast<const T*>(mxGetPr(p))};
+    std::vector<DiscreteType> revDims(dims.rbegin(),dims.rend()); // Row major
+    
+    return {revDims,reinterpret_cast<const T*>(mxGetPr(p))};
 }
 
 template<typename T, size_t d, typename F> void MexIO::Set(KeyCRef key, DimType<d> dims, const F & f){
@@ -93,7 +98,8 @@ template<typename T, size_t d, typename F> void MexIO::Set(KeyCRef key, DimType<
     const int sizeRatio = sizeof(T)/sizeof(ScalarType);
     std::vector<mwSize> mxDims;
     if(!std::is_same<T, ScalarType>::value) mxDims.push_back(sizeRatio);
-    for(DiscreteType dim : dims)            mxDims.push_back(dim);
+    mxDims.insert(mxDims.end(), dims.rbegin(), dims.rend()); // Row major
+//    for(DiscreteType dim : dims)            mxDims.push_back(dim);
     for(size_t i=mxDims.size(); i<2; ++i)   mxDims.push_back(1);
     
     mxArray * pArr = mxCreateNumericArray(mxDims.size(), &mxDims[0], mxDOUBLE_CLASS, mxREAL);

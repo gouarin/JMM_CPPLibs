@@ -14,15 +14,14 @@ void PythonIO::PySetArray(KeyCRef key, ndarray arr) {
     raw.dims.resize(ndims);
     DiscreteType stride = sizeof(ScalarType);
     
-    for(int i=0; i<ndims; ++i){
-        const int j=ndims-i-1;
-        raw.dims[i] = arr.shape(j);
-        
-        //TODO : FIX ME.  Support arbitrary strides.
-        if(arr.strides(j)!=stride){
+    for(int i=ndims-1; i>=0; --i){ // Row major
+        if(arr.strides(i)!=stride){   //TODO : Support arbitrary strides.
             ExceptionMacro("PythonIO error : Sorry, only canonical strides are supported.");}
-        stride*=raw.dims[i];
+        stride*=arr.shape(i);
     }
+    for(int i=0; i<ndims; ++i)
+        raw.dims[i]=arr.shape(i);
+    
     const DiscreteType flattenedLength = raw.FlattenedLength();
     raw.data.resize(flattenedLength);
     
@@ -36,12 +35,12 @@ auto PythonIO::PyGetArray(KeyCRef key) const -> ndarray {
     if(raw.dims.empty()){ExceptionMacro("PythonIO error : field " << key << " is a scalar, not an array");}
     boost::python::tuple shape;
     for(DiscreteType dim : raw.dims){
-        shape = boost::python::extract<boost::python::tuple>(boost::python::make_tuple(dim)+shape);}
+        shape = boost::python::extract<boost::python::tuple>(shape+boost::python::make_tuple(dim));} // Row major
     ndarray result = boost::python::numpy::zeros(shape, dtype::get_builtin<double>());
     
-    namespace p=boost::python;
+/*    namespace p=boost::python;
     std::cout << p::extract<char const *>(p::str(shape)) << std::endl;
-    std::cout << p::extract<char const *>(p::str(result)) << std::endl;
+    std::cout << p::extract<char const *>(p::str(result)) << std::endl;*/
 
     assert(raw.FlattenedLength()==raw.data.size());
     ScalarType * beg = reinterpret_cast<ScalarType*>(result.get_data());

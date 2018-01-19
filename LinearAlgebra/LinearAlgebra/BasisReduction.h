@@ -33,8 +33,8 @@ struct BasisReduction {
     
     static const BasisType CanonicalBasis();
     static const SuperbaseType CanonicalSuperBase();
-    static void ReducedBasis(const SymmetricMatrixType &, BasisType &);
-    static void ObtuseSuperbase(const SymmetricMatrixType &, SuperbaseType &);
+    static void ReducedBasis(const SymmetricMatrixType &, BasisType &); // Minkowksi reduced basis (Dimension=2 only)
+    static void ObtuseSuperbase(const SymmetricMatrixType &, SuperbaseType &); // Selling reduced basis (Dimension<=3)
     static TensorDecompositionType TensorDecomposition(const SymmetricMatrixType &);
     static int maxIt;
 protected:

@@ -3,11 +3,7 @@ import numpy as np;
 import os;
 from operator import mul
 from functools import reduce
-
-
-# Set to the directory containing ExternLFM executables FileLFM2D and FileLFM3D
-os.chdir("/Users/mirebeau/bin/2016/ExternLFM/Release")
-
+import subprocess
 
 #These two methods export a dictonary to a (pair of) files, and conversely.
 def RulesToRaw(params,prefix='input'):
@@ -24,7 +20,7 @@ def RulesToRaw(params,prefix='input'):
             f.write(key+'\n-1\n'+val+'\n\n')
         elif isinstance(val,np.ndarray):
             f.write(key+'\n'+str(val.ndim)+'\n')
-            for dim in reversed(val.shape):
+            for dim in val.shape:
                 f.write(str(dim)+'\n')
             f.write('\n')
             data.append(val.flatten())
@@ -34,9 +30,8 @@ def RulesToRaw(params,prefix='input'):
     np.concatenate(data).astype('d').tofile(prefix+'_Data.dat')
     
 def RawToRules(prefix='output'):
-    data=np.fromfile(prefix+'_data.dat')
+    data=np.fromfile(prefix+'_Data.dat')
     pos=0;
-    print(data)
     f=open(prefix+'_Format.txt')
     dict={}
     while True:
@@ -49,9 +44,30 @@ def RawToRules(prefix='output'):
             dict[key]=data[pos]
             pos+=1
         else:
-            dims=list(reversed([int(f.readline()) for i in range(keyType)]))
+            dims=[int(f.readline()) for i in range(keyType)]
             size=reduce(mul,dims)
             dict[key]=np.reshape(data.take(np.arange(pos,pos+size)),dims)
             pos+=size
         f.readline()
     return dict
+
+def WriteCallRead(inputData,executable,binary_dir=None,
+                  inputPrefix="input",outputPrefix="output",logFile="log.txt"):
+    if binary_dir: #Change to executable's directory
+        cwd=os.getcwd()
+        os.chdir(binary_dir)
+        
+    RulesToRaw(inputData,inputPrefix) # Export inputData
+    
+    execPrefix = '' if os.name=='nt' else './' # Run executable
+    command = execPrefix+executable+' '+inputPrefix+' '+outputPrefix
+    if logFile: command = command +' > '+logFile
+    retcode = subprocess.call(command, shell=True)
+    if retcode!=0:  print('Returned with exit code ', retcode)
+    
+    outputData = RawToRules(outputPrefix) # Import outputData
+    if logFile: outputData['log'] = open(logFile).read()
+    outputData['retcode']=retcode;
+    if binary_dir:  os.chdir(cwd)
+        
+    return outputData

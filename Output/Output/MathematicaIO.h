@@ -21,7 +21,7 @@ struct MathematicaIO : BaseIO {
     typedef double ScalarType;
     
     // An adaptation of the file IO:
-    MathematicaIO(WolframLibraryData libDataIn){SetWolframLibraryData(libDataIn);arrayOrdering=TraitsIO::ArrayOrdering::Reversed;}
+    MathematicaIO(WolframLibraryData libDataIn){SetWolframLibraryData(libDataIn);arrayOrdering=TraitsIO::ArrayOrdering::RowMajor;}
     
     void MathSetArray(KeyCRef,const MTensor);
     MTensor MathGetArray(KeyCRef,int d) const;

@@ -59,6 +59,7 @@ void BaseIO::SetString(KeyCRef key, const std::string & val) {
 // ----- Protected fields -----
 
 void BaseIO::UsageReport(){
+    currentSetter = SetterTag::Compute;
     if(!unused.empty()){
         std::ostringstream ossUser, ossCompute;
         for(KeyCRef key : unused) {
@@ -69,11 +70,14 @@ void BaseIO::UsageReport(){
             }
         }
         const std::string & fromUser = ossUser.str(), fromCompute = ossCompute.str();
-        SetString("unusedFromUser", fromUser);
-        SetString("unusedFromCompute", fromCompute);
-        
-        if(verbosity>=1 && !fromUser.empty())    _Msg<true,BaseIO>(this) << "Unused fields from user: " << fromUser << "\n";
-        if(verbosity>=2 && !fromCompute.empty()) _Msg<false,BaseIO>(this) << "Unused fields from compute : " << fromCompute << "\n";
+        if(!fromUser.empty()){
+            SetString("unusedFromUser", fromUser);
+            if(verbosity>=1) _Msg<true,BaseIO>(this) << "Unused fields from user: " << fromUser << "\n";
+        }
+        if(!fromCompute.empty()){
+            SetString("unusedFromCompute", fromCompute);
+            if(verbosity>=2) _Msg<false,BaseIO>(this) << "Unused fields from compute : " << fromCompute << "\n";
+        }
     }
     if(!defaulted.empty()){
         std::ostringstream oss;
@@ -87,6 +91,7 @@ void BaseIO::UsageReport(){
         SetString("visitedUnset", oss.str());
         if(verbosity>=3) _Msg<false,BaseIO>(this) << "Visited but unset fields : " << oss.str() << "\n";
     }
+    currentSetter = SetterTag::User;
 }
 
 auto BaseIO::GetSetter(KeyCRef key) const -> SetterTag {
@@ -120,10 +125,10 @@ template<typename T> std::pair<std::vector<BaseIO::DiscreteType>, const T*> Base
     static_assert(sizeof(T) % sizeof(ScalarType) == 0, "Field is not made of scalars.");
     const DiscreteType sizeRatio = sizeof(T) / sizeof(ScalarType);
     if (!std::is_same<T, ScalarType>::value) {
-        if (dims.empty() || dims[0] != sizeRatio)
-            ExceptionMacro("BaseIO input error first dimension " << (dims.empty() ? 0 : dims[0]) << " of field "
+        if (dims.empty() || dims.back() != sizeRatio) // Row major
+            ExceptionMacro("BaseIO input error first dimension " << (dims.empty() ? 0 : dims.back()) << " of field "
                            << key << " does not match expected value " << sizeRatio << ".");
-        dims.erase(dims.begin());
+        dims.pop_back();
     }
     return {dims, reinterpret_cast<const T*>(&raw.data[0]) };
 }
@@ -140,8 +145,8 @@ template<typename T, size_t d, typename F> void BaseIO::Set(KeyCRef key, DimType
     for (DiscreteType i = 0; i<size; ++i)
         input[i] = vals(i);
     
-    if(!std::is_same<T, ScalarType>::value) raw.dims.push_back(sizeRatio);
     for(auto dim : dims) raw.dims.push_back(dim);
+    if(!std::is_same<T, ScalarType>::value) raw.dims.push_back(sizeRatio); // Row major
 }
 
 

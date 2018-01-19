@@ -5,7 +5,8 @@
 #define ArrayType_h
 
 /*
- A very basic array type. The fast index is the first index.
+ A very basic array type.
+ Row major ordering. (Changing from Column major on 20/11/2017)
  */
 
 #include <vector>
@@ -41,24 +42,24 @@ struct Array : public std::vector<TComponent> {
     void PrintSelf(std::ostream & os) const;
     friend std::ostream & operator << (std::ostream & os, const Array & a){a.PrintSelf(os); return os;}
 
-    DiscreteType Convert(const IndexType & index) const {
+    DiscreteType Convert(const IndexType & index) const { // Row Major
         if(Dimension==0) return 0;
         assert(InRange(index));
-        DiscreteType result = index[Dimension-1];
-        for(int i=(int)Dimension-2; i>=0; --i)
-            result = result*dims[i] + index[i];
+        DiscreteType result = index[0];
+        for(int i=1; i<Dimension; ++i)
+            result = result*dims[i]+index[i];
         return result;
     }
     
-    IndexType Convert(DiscreteType n) const {
+    IndexType Convert(DiscreteType n) const { // Row major
         if(Dimension==0) return IndexType();
         assert(0<=n && n<dims.ProductOfCoordinates());
         IndexType result;
-        for(int i=0; i<Dimension-1; ++i){
+        for(int i=Dimension-1; i>0; --i){
             result[i]=n%dims[i];
             n/=dims[i];
         }
-        result[Dimension-1]=n;
+        result[0]=n;
         return result;
     }
     

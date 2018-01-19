@@ -23,11 +23,10 @@ void MathematicaIO::MathSetArray(KeyCRef key,const MTensor val){
     const int ndims = libData->MTensor_getRank(val); // Array dimension
     mint const* dimsMath = libData->MTensor_getDimensions(val);// Dimensions
     
-    // Copy-reverse dimensions to the array dimensions
     RawElement & raw = CreateElement(key);
     raw.dims.resize(ndims);
     for(int i=0; i<ndims; ++i) {
-        raw.dims[i]=dimsMath[ndims-i-1];}
+        raw.dims[i]=dimsMath[i];} // Row major
     
     // Copy data
     raw.data.resize(arrayMathLen);
@@ -39,9 +38,8 @@ MTensor MathematicaIO::MathGetArray(KeyCRef key,int ndims) const{
     if(ndims!=raw.dims.size()){
         ExceptionMacro("MathGetArray error: tensor " << key << " has rank " << raw.dims.size() << " and not " << ndims);}
     
-    // Create empty MTensor and copy-reverse dimensions
     std::vector<mint> dims(ndims);
-    for(int i=0; i<ndims; ++i) dims[i] = raw.dims[ndims-i-1];
+    for(int i=0; i<ndims; ++i) dims[i] = raw.dims[i]; // Row major
     
     MTensor vectorMath_T;
     libData->MTensor_new(MType_Real, ndims, &dims[0], &vectorMath_T);

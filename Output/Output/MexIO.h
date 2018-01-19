@@ -6,6 +6,7 @@
 
 #include "mex.h"
 #include <sstream>
+#include <chrono>
 
 #define __IgnoreTrailingSingletonDimensions 1
 #include "BaseIO.h"
@@ -28,7 +29,7 @@ struct MexIO : virtual TraitsIO {
     
     MexIO(const mxArray *, mxArray **);
     MexIO(const BaseIO &) = delete;
-    static clock_t top;
+    static std::chrono::time_point<std::chrono::system_clock> top;
 protected:
     template<typename T> std::pair<std::vector<DiscreteType>,const T*> GetDimsPtr(KeyCRef) const;
     template<typename T, size_t d, typename F> void Set(KeyCRef, DimType<d>, const F &);
@@ -42,7 +43,7 @@ protected:
     template<bool,typename> friend struct _Msg;
     void UsageReport();
 };
-clock_t MexIO::top = clock();
+std::chrono::time_point<std::chrono::system_clock> MexIO::top = std::chrono::system_clock::now();
 #include "MexIO.hxx"
 
 

@@ -35,8 +35,8 @@ struct TraitsIO {
     enum class SetterTag {User,Compute,Unknown};
     SetterTag currentSetter = SetterTag::User;
 
-    enum class ArrayOrdering {Default, Reversed, Transposed};
-    ArrayOrdering arrayOrdering = ArrayOrdering::Default;
+    enum class ArrayOrdering {RowMajor, ColumnMajor, YXZ_RowMajor, YXZ_ColumnMajor}; //{Default, Reversed, Transposed};
+    ArrayOrdering arrayOrdering = ArrayOrdering::RowMajor;
 protected:
     template<size_t d> using DimType = LinearAlgebra::Point<DiscreteType,d>;
     mutable std::set<KeyType> unused, defaulted, visitedUnset;
@@ -54,7 +54,8 @@ template<bool warn, typename IO> struct _Msg {
     template<typename T> _Msg & operator << (const T & t){oss << t; return *this;}
 };
 
-template<> char const * enumStrings<TraitsIO::ArrayOrdering>::data[] = {"Default", "Reversed", "Transposed"};
+template<> char const * enumStrings<TraitsIO::ArrayOrdering>::data[] = {"RowMajor", "ColumnMajor", "YXZ_RowMajor", "YXZ_ColumnMajor"};
+template<> char const * enumStrings<TraitsIO::SetterTag>::data[] = {"User","Compute","Unknown"};
 
 /*
  Base must inherit TraitsIO (or redefine similar traits) and provide the following
@@ -101,6 +102,13 @@ protected:
     template<typename V> static V ReverseDims(const V &);
     template<typename T, size_t d> struct TransposeVals;
     template<typename T, size_t d> struct ReverseVals;
+    
+//    template<typename V> static V TransposeReverseDims(const V &);
+//    template<typename V> static V ReverseTransposeDims(const V &);
+
+    template<typename T, size_t d> struct TransposeReverseVals; // Transpose(Reverse()) composition
+    template<typename T, size_t d> struct ReverseTransposeVals;
+    
     template<typename T, size_t d> void Set(KeyCRef, DimType<d>, const T*);
 };
 
