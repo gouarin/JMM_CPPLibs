@@ -7,15 +7,14 @@
 // ----- Public -----
 
 void MexIO::StaticSendMsg(bool warn, std::string str){
-    if(warn) mexWarnMsgTxt(str.c_str());
+    if(warn) mexWarnMsgIdAndTxt("HFM:Warning","%s",str.c_str()); //mexWarnMsgTxt(str.c_str());
         else {
             size_t start_pos = 0; const std::string from="%", to ="%%";
             while((start_pos = str.find(from, start_pos)) != std::string::npos) {
                 str.replace(start_pos, from.length(), to);
                 start_pos += to.length(); // Handles case where 'to' is a substring of 'from'
-                
             }
-            printf(str.c_str());
+            mexPrintf("%s",str.c_str());  // printf(str.c_str());
         }
     std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
     int elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now-top).count();

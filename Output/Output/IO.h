@@ -103,9 +103,6 @@ protected:
     template<typename T, size_t d> struct TransposeVals;
     template<typename T, size_t d> struct ReverseVals;
     
-//    template<typename V> static V TransposeReverseDims(const V &);
-//    template<typename V> static V ReverseTransposeDims(const V &);
-
     template<typename T, size_t d> struct TransposeReverseVals; // Transpose(Reverse()) composition
     template<typename T, size_t d> struct ReverseTransposeVals;
     
