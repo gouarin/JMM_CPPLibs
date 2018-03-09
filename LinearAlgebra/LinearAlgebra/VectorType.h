@@ -21,10 +21,15 @@ affine_space<Point<TComponent, VDimension>, Vector<TComponent, VDimension> , TCo
     typedef Point<ComponentType, Dimension> PointType;
     typedef PointBase<ComponentType, Dimension> PointBaseType;
     
-    Vector(std::initializer_list<TComponent> c):PointBaseType(c){};
-    Vector(){};
+    typedef typename PointBaseType::DataType DataType;
+    template<typename ...T,typename dummy = typename std::enable_if<sizeof...(T)==Dimension>::type >
+    constexpr Vector(T... t):PointBaseType{t...}{};
 
+//    constexpr Vector(const DataType & data):PointBaseType(data){};
+    Vector(){};
     
+
+    // Linear algebra
     Vector & operator+=(const Vector & u){for(int i=0; i<Dimension; ++i) this->operator[](i)+=u[i]; return *this;}
     Vector & operator-=(const Vector & u){for(int i=0; i<Dimension; ++i) this->operator[](i)-=u[i]; return *this;}
     Vector & operator*=(const ComponentType & a){for(int i=0; i<Dimension; ++i) this->operator[](i)*=a; return *this;}
@@ -41,14 +46,17 @@ affine_space<Point<TComponent, VDimension>, Vector<TComponent, VDimension> , TCo
     friend PointType & operator+=(PointType & p, const Vector & u){for(int i=0; i<Dimension; ++i) p[i]+=u[i]; return p;}
     friend PointType & operator-=(PointType & p, const Vector & u){for(int i=0; i<Dimension; ++i) p[i]-=u[i]; return p;}
     
-    static Vector FromOrigin(const PointBaseType & p){return Vector(p);}
-    static Vector Constant(ComponentType c){return PointBaseType::Constant(c);}
-    
+    // Geometry
     ComponentType ScalarProduct(const Vector & u) const {ComponentType s(0.); for(size_t i=0; i<Dimension; ++i) s = s+this->operator[](i)*u[i]; return s;}
     ComponentType SquaredNorm() const {return ScalarProduct(*this);}
     ComponentType Norm() const {assert( !std::is_integral<ComponentType>::value ); return sqrt(SquaredNorm());}
     bool IsNull() const {for(int i=0;i<Dimension;++i) if((*this)[i]!=0) return false; return true;}
-    
+    Vector Normalized() const;
+
+    // Constructors
+    static Vector FromOrigin(const PointBaseType & p){return Vector(p);}
+    static Vector Constant(ComponentType c){return PointBaseType::Constant(c);}
+    static Vector RandomUnit();
     template<typename Component2>
     static Vector CastCoordinates(const Vector<Component2,Dimension> & u){return Vector(PointBaseType::CastCoordinates(u));}
 protected:
@@ -64,8 +72,9 @@ Vector<TC,VD>  operator- (const Point<TC,VD> & p, const Point<TC,VD> & q)
         u[i]=p[i]-q[i];
     return u;
 }
+
     
-// More dimensions to do
+// Determinant, in dimension 2,3.
 template<typename TComponent>
 TComponent
 Determinant(const Vector<TComponent,2> & u, const Vector<TComponent,2> & v){return u[0]*v[1]-u[1]*v[0];}
@@ -79,6 +88,13 @@ Determinant(const Vector<TComponent,3> & u, const Vector<TComponent,3> & v, cons
     return ans;
 }
     
+// Perpendicular and cross product
+template<typename TComponent>
+Vector<TComponent, 2>
+Perp(const Vector<TComponent, 2> & v){
+    return {-v[1],v[0]};
+}
+    
 template<typename TComponent>
 Vector<TComponent, 3>
 Cross(const Vector<TComponent, 3> & u, const Vector<TComponent, 3> & v){
@@ -90,15 +106,13 @@ Cross(const Vector<TComponent, 3> & u, const Vector<TComponent, 3> & v){
     return result;
 }
     
-template<typename TComponent>
-Vector<TComponent, 2>
-Perp(const Vector<TComponent, 2> & v){
-    return {-v[1],v[0]};
-}
+
     
 template<typename TComponent>
 double
 AngleWithRespectToNegativeAxis(const Vector<TComponent, 2> & u){return atan2(u[1],u[0]);}
+
+#include "Implementation/VectorType.hxx"
 
 } // end of namespace LinearAlgebra
 

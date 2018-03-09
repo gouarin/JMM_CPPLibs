@@ -28,8 +28,11 @@ struct BasisReduction {
     
     typedef std::array<DiscreteVectorType, Dimension>   BasisType;
     typedef std::array<DiscreteVectorType, Dimension+1> SuperbaseType;
-    typedef std::array<std::pair<DiscreteVectorType, ScalarType>,
-    (Dimension*(Dimension+1))/2> TensorDecompositionType;
+    static const size_t SymDimension = (Dimension*(Dimension+1))/2;
+    struct TensorDecompositionType {
+        std::array<DiscreteVectorType,SymDimension> offsets;
+        std::array<ScalarType,SymDimension> weights;
+    };
     
     static const BasisType CanonicalBasis();
     static const SuperbaseType CanonicalSuperBase();

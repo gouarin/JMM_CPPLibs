@@ -55,7 +55,7 @@ struct Array : public std::vector<TComponent> {
         if(Dimension==0) return IndexType();
         assert(0<=n && n<dims.ProductOfCoordinates());
         IndexType result;
-        for(int i=Dimension-1; i>0; --i){
+        for(int i=int(Dimension)-1; i>0; --i){
             result[i]=n%dims[i];
             n/=dims[i];
         }

@@ -119,7 +119,8 @@ struct BasisReduction<TS, TD, VD>::TensorDecompositionHelper<2,Dummy> {
         T::TensorDecompositionType decomp;
         for(int i=0; i<3; ++i){
             int j=(i+1)%3,k=(i+2)%3;
-            decomp[i] = {LinearAlgebra::Perp(sb[i]),-diff.ScalarProduct(sb[j],sb[k])};
+            decomp.offsets[i] = LinearAlgebra::Perp(sb[i]);
+            decomp.weights[i] = -diff.ScalarProduct(sb[j],sb[k]);
         }
         return decomp;
     }
@@ -131,13 +132,15 @@ struct BasisReduction<TS, TD, VD>::TensorDecompositionHelper<3,Dummy> {
     typedef BasisReduction<TS, TD, VD> T;
     static T::TensorDecompositionType Get(const T::SymmetricMatrixType & diff, const T::SuperbaseType & sb){
         T::TensorDecompositionType decomp;
-        auto decompIt = decomp.begin();
+        auto offsetIt = decomp.offsets.begin();
+        auto weightIt = decomp.weights.begin();
         for(int i=0; i<4; ++i)
             for(int j=i+1; j<4; ++j){
                 int rem[2]; int*remIt=rem;
                 for(int k=0; k<4; ++k) if(k!=i && k!=j) {*remIt=k; ++remIt;}
-                *decompIt = {LinearAlgebra::Cross(sb[rem[0]],sb[rem[1]]),-diff.ScalarProduct(sb[i],sb[j])};
-                ++decompIt;
+                *offsetIt = LinearAlgebra::Cross(sb[rem[0]],sb[rem[1]]);
+                *weightIt = -diff.ScalarProduct(sb[i],sb[j]);
+                ++offsetIt; ++weightIt;
             }
         return decomp;
     }

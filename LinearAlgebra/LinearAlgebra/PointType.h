@@ -14,10 +14,14 @@ PointBase<TComponent,VDimension>
 {
     typedef TComponent ComponentType;
     static const int Dimension = VDimension;
-    
     typedef PointBase<TComponent,VDimension> PointBaseType;
     
-    Point(std::initializer_list<TComponent> c):PointBaseType(c){};
+    template<typename ...T,typename dummy = typename std::enable_if<sizeof...(T)==Dimension>::type >
+    constexpr Point(T... t):PointBaseType{t...}{};
+
+//    typedef typename PointBaseType::DataType DataType;
+//    constexpr Point(const DataType & data):
+//    PointBaseType(data){};
     Point(){};
     
     static Point FromOrigin(const PointBaseType & p){return Point(p);}

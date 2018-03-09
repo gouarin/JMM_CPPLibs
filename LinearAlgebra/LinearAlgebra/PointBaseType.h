@@ -19,13 +19,7 @@ public std::array<TComponent,VDimension>
 {
     typedef TComponent ComponentType;
     static const int Dimension = VDimension;
-
-    PointBase(std::initializer_list<TComponent> c){
-        assert(c.size()==Dimension);
-        std::copy(c.begin(), c.end(), this->begin());
-    }
-    
-    PointBase(){};
+    typedef std::array<TComponent,VDimension> DataType;
     
     bool AreAllCoordinatesNonNegative() const;
     bool AreAllCoordinatesPositive() const;
@@ -37,12 +31,23 @@ public std::array<TComponent,VDimension>
     static PointBase Constant(ComponentType c){PointBase p; p.fill(c); return p;}
     
     struct LexicographicCompare;
-    
+/*    template<typename ...Components> PointBase(Components... comps) : DataType{std::forward<Components>(comps)...}{}*/
 protected:
+//    constexpr PointBase(const DataType & data):DataType(data){};
+    template<typename ...T,typename dummy = typename std::enable_if<sizeof...(T)==Dimension>::type >
+    constexpr PointBase(T... t):DataType{{ComponentType(t)...}}{};
+    PointBase(){};
+    
     template<typename Component2>
     static PointBase CastCoordinates(const PointBase<Component2,Dimension> & u){
         PointBase v;
-        for(size_t i=0; i<Dimension; ++i) v[i] = ComponentType(u[i]);
+        for(size_t i=0; i<Dimension; ++i){
+            if (std::numeric_limits<ComponentType>::is_integer // constexpr
+                && !std::numeric_limits<Component2>::is_integer
+                && std::numeric_limits<Component2>::is_specialized)
+                 v[i] = ComponentType(round(u[i]));
+            else v[i] = ComponentType(u[i]);
+        }
         return v;
     }    
 };
@@ -61,61 +66,8 @@ std::ostream & operator << (std::ostream & f, const PointBase<TC,VD> & p)
     return f;
 }
     
-template<typename TC, size_t VD>
-bool
-PointBase<TC,VD>::AreAllCoordinatesNonNegative() const {
-    for(int i=0; i<Dimension; ++i)
-        if(this->operator[](i)<0) return false;
-    return true;
-}
-
-template<typename TC, size_t VD>
-bool
-PointBase<TC,VD>::AreAllCoordinatesPositive() const {
-    for(int i=0; i<Dimension; ++i)
-        if(this->operator[](i)<=0) return false;
-    return true;
-}
-
-template<typename TC, size_t VD>
-bool
-PointBase<TC,VD>::IsFinite() const {
-    for(int i=0; i<Dimension; ++i)
-        if(!(std::fabs(this->operator[](i))<std::numeric_limits<ComponentType>::infinity()))
-            return false;
-    return true;
-}
     
-template<typename TC, size_t VD>
-typename PointBase<TC,VD>::ComponentType
-PointBase<TC,VD>::SumOfCoordinates() const {
-    ComponentType sum(0);
-    for(int i=0; i<Dimension; ++i)
-        sum += this->operator[](i);
-    return sum;
-}
-
-template<typename TC, size_t VD>
-typename PointBase<TC,VD>::ComponentType
-PointBase<TC,VD>::ProductOfCoordinates() const {
-    ComponentType prod(1);
-    for(int i=0; i<Dimension; ++i)
-        prod *= this->operator[](i);
-    return prod;
-}
-
-    template<typename TC, size_t VD>
-    struct PointBase<TC, VD>::LexicographicCompare {
-        bool operator()(const PointBase & p, const PointBase & q) const {
-            for(auto pi=p.begin(), qi=q.begin(); pi!=p.end(); ++pi, ++qi){
-                if(*pi < *qi) return true;
-                if(*pi > *qi) return false;
-            }
-            return false; // strict ordering
-        }
-    };
-    
-    
+#include "Implementation/PointBaseType.hxx"
 }
 
 #endif
