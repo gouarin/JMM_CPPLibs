@@ -73,7 +73,7 @@ vector_space< SymmetricMatrix<TComponent, VDimension>, TComponent>
     static SymmetricMatrix EuclideanGram(const std::array<Vector<T,D>, Dimension> & a);
 
     // Conversion
-    explicit operator MatrixType();
+    explicit operator MatrixType() const;
     template<typename T> static SymmetricMatrix CastCoordinates(const SymmetricMatrix<T, Dimension> & m0);
     
     static const size_t InternalDimension = (Dimension*(Dimension+1))/2;

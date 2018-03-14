@@ -148,7 +148,7 @@ EuclideanGram(const std::array<Vector<T,D>, Dimension> & a) -> SymmetricMatrix
 
 // Conversion
 template<typename TC,size_t VD> SymmetricMatrix<TC,VD>::
-operator MatrixType(){
+operator MatrixType() const {
     MatrixType result;
     for(int i=0; i<Dimension; ++i)
         for(int j=0; j<Dimension; ++j)
@@ -205,6 +205,7 @@ SymmetricMatrix<TC, VD>::Determinant() const {
 template<typename TC, size_t VD>
 SymmetricMatrix<TC, VD>
 SymmetricMatrix<TC, VD>::Inverse() const {
+    if(VD>3) return FromUpperTriangle(static_cast<MatrixType>(*this).Inverse());
     ComponentType det = Determinant();
     SymmetricMatrix  m;
     switch (VD) {
@@ -219,7 +220,8 @@ SymmetricMatrix<TC, VD>::Inverse() const {
                     m(i,j) = coef(i1,j1)*coef(i2,j2)-coef(i1,j2)*coef(i2,j1);
                 }
             m/=det; return m;
-        default: throw "SymmetricMatrix::Inverse error: Unsupported matrix size";
+        default:
+            assert(false);
     }
 }
 
