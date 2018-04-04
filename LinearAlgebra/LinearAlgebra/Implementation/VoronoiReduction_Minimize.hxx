@@ -81,9 +81,7 @@ SimplexStateType::PrintSelf(std::ostream & os) const {
 template<typename TS, int VD> void VoronoiFirstReduction<TS,VD>::
 Minimize(SimplexStateType & state){
     FirstGuess(state);
-    int i=0;
-    while(BetterNeighbor(state)){++i;};
-    std::cout ExportVarArrow(i) << "\n";
+    while(BetterNeighbor(state)){};
 }
 
 template<typename TS, int VD> void VoronoiFirstReduction<TS,VD>::

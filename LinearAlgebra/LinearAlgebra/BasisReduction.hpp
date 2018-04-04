@@ -97,7 +97,8 @@ BasisReduction<TS,TD,VD>::ObtuseSuperbase(const SymmetricMatrixType & m, Superba
     if(reduced) assert(false);
     if(reduced) ExceptionMacro("ObtuseSuperbase error : did not terminate in "
                                << maxIt << " iterations, for matrix " << m
-                               << ", current superbase: " ExportArrayArrow(sb) << ".\n");
+                               /*<< ", current superbase: " ExportArrayArrow(sb)*/
+                               << ".\n");
     for(int i=0; i<Dimension; ++i)
         for(int j=i+1; j<=Dimension; ++j)
             assert(m.ScalarProduct(sb[i],sb[j])<=0);
@@ -111,6 +112,18 @@ BasisReduction<TS,TD,VD>::TensorDecomposition(const SymmetricMatrixType & diff){
     return TensorDecompositionHelper<VD>::Get(diff,sb);
 }
 
+template<typename TS, typename TD, size_t VD> template<typename Dummy>
+struct BasisReduction<TS, TD, VD>::TensorDecompositionHelper<1,Dummy> {
+    static_assert(VD==1,"Inconsistent dimensions");
+    typedef BasisReduction<TS, TD, VD> T;
+    static T::TensorDecompositionType Get(const T::SymmetricMatrixType & diff, const T::SuperbaseType &){
+        T::TensorDecompositionType decomp;
+        decomp.offsets[0][0]=1;
+        decomp.weights[0] = diff(0,0);
+        return decomp;
+    }
+};
+    
 template<typename TS, typename TD, size_t VD> template<typename Dummy>
 struct BasisReduction<TS, TD, VD>::TensorDecompositionHelper<2,Dummy> {
     static_assert(VD==2,"Inconsistent dimensions");
