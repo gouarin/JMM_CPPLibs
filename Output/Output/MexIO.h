@@ -13,7 +13,7 @@
 
 
     
-struct MexIO : virtual TraitsIO {
+struct MexIO : TraitsIO {
     typedef double ScalarType;
     
     template<bool warn> struct Msg_ {
