@@ -40,7 +40,7 @@ std::string PythonIO::GetComputedKeys() const {
     for(const auto & a : rawElems){
         if(a.second.setter == SetterTag::Compute) {
             oss << "(" << a.first << "," <<
-            (a.second.IsString() ? "String" : a.second.IsScalar() ? "float" : "array")
+            (a.second.IsString() ? "string" : a.second.IsScalar() ? "float" : "array")
             << "),";}
     }
     oss << ")";

@@ -184,10 +184,4 @@ struct IO_<Base>::ReverseTransposeVals {
         return pVals[a.Convert(TransposeDims(ReverseDims(ta.Convert(index))))];} //Corrected
 };
 
-// Destruction
-
-template<typename Base>
-IO_<Base>::~IO_(){
-    this->UsageReport();
-}
 #endif /* IO_hxx */

@@ -20,6 +20,7 @@ struct BaseIO : TraitsIO {
     std::string GetString(KeyCRef) const;
     void SetString(KeyCRef, const std::string &);
     BaseIO(){};
+    void UsageReport();
 protected:
     template<typename T> std::pair<std::vector<DiscreteType>,const T*> GetDimsPtr(KeyCRef) const;
     template<typename T, size_t d, typename F> void Set(KeyCRef, DimType<d>, const F &);
@@ -31,7 +32,6 @@ protected:
     RawElement & CreateElement(KeyCRef);
     void SetUsed(KeyCRef);
     SetterTag GetSetter(KeyCRef) const;
-    void UsageReport();
     static void StaticSendMsg(bool warn, const std::string & msg) {
         if(warn) std::cout << "***** Warning ! *****\n" << msg << "********************\n";
         else std::cout << msg;}

@@ -81,6 +81,8 @@ FileIO::FileIO(std::string inputPrefix, std::string outputPrefix_):outputPrefix(
 }
 
 FileIO::~FileIO(){
+    this->UsageReport();
+    
     // Write format file
     std::ofstream ofs;
     ofs.open(outputPrefix+"_Format.txt");

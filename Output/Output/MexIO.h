@@ -30,6 +30,7 @@ struct MexIO : TraitsIO {
     MexIO(const mxArray *, mxArray **);
     MexIO(const BaseIO &) = delete;
     static std::chrono::time_point<std::chrono::system_clock> top;
+    void UsageReport();
 protected:
     template<typename T> std::pair<std::vector<DiscreteType>,const T*> GetDimsPtr(KeyCRef) const;
     template<typename T, size_t d, typename F> void Set(KeyCRef, DimType<d>, const F &);
@@ -41,7 +42,6 @@ protected:
     static void StaticSendMsg(bool warn, std::string msg);
     void SendMsg(bool warn, const std::string & msg) const {return StaticSendMsg(warn,msg);}
     template<bool,typename> friend struct _Msg;
-    void UsageReport();
 };
 std::chrono::time_point<std::chrono::system_clock> MexIO::top = std::chrono::system_clock::now();
 #include "MexIO.hxx"
