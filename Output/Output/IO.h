@@ -35,7 +35,7 @@ struct TraitsIO {
     enum class SetterTag {User,Compute,Unknown};
     SetterTag currentSetter = SetterTag::User;
 
-    enum class ArrayOrdering {RowMajor, ColumnMajor, YXZ_RowMajor, YXZ_ColumnMajor}; //{Default, Reversed, Transposed};
+    enum class ArrayOrdering {RowMajor, ColumnMajor, YXZ_RowMajor, YXZ_ColumnMajor};
     ArrayOrdering arrayOrdering = ArrayOrdering::RowMajor;
 protected:
     template<size_t d> using DimType = LinearAlgebra::Point<DiscreteType,d>;
@@ -57,7 +57,7 @@ template<bool warn, typename IO> struct _Msg {
 template<> char const * enumStrings<TraitsIO::ArrayOrdering>::data[] = {"RowMajor", "ColumnMajor", "YXZ_RowMajor", "YXZ_ColumnMajor"};
 template<> char const * enumStrings<TraitsIO::SetterTag>::data[] = {"User","Compute","Unknown"};
 
-/*
+/* ---- INFO : DO NOT DELETE -----
  Base must inherit TraitsIO (or redefine similar traits) and provide the following
  
  public:
