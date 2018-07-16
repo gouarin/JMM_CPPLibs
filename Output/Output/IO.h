@@ -80,7 +80,6 @@ template<typename Base> struct IO_ : Base {
     template<size_t VD> using DimType = typename Superclass::template DimType<VD>;
     
     using Base::Base;
-    ~IO_();
     
     typedef _Msg<false,IO_> Msg;
     typedef _Msg<true,IO_> WarnMsg;
