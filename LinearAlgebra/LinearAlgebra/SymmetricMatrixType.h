@@ -81,11 +81,7 @@ vector_space< SymmetricMatrix<TComponent, VDimension>, TComponent>
     template<typename ...T,typename dummy = typename std::enable_if<sizeof...(T)==InternalDimension>::type >
     constexpr SymmetricMatrix(T... t):data(t...){};
 
-    
-//    typedef typename Vector<ComponentType,InternalDimension>::DataType DataType;
-//    constexpr SymmetricMatrix(const DataType & data_):data(data_){};
     SymmetricMatrix(){};
-
 protected:
     const ComponentType & coef(int i, int j) const {return this->operator()(i,j);}
 };
