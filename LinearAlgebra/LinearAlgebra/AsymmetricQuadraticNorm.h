@@ -33,7 +33,7 @@ struct AsymmetricQuadraticNorm {
     
     ///Positive multiple of gradient
     VectorType MGrad(const VectorType & v) const {return m*v+ScalPos(v)*w;}
-    VectorType Grad(const VectorType & v) const {
+    VectorType Gradient(const VectorType & v) const {
         const VectorType g = MGrad(v);
         const ScalarType squaredNorm = g.ScalarProduct(v);
         return g/sqrt(squaredNorm);
@@ -52,6 +52,12 @@ struct AsymmetricQuadraticNorm {
 protected:
     ScalarType ScalPos(const VectorType & v) const {return std::max(w.ScalarProduct(v),ScalarType(0));}
 };
+    
+template<typename TS, size_t VD>
+std::ostream & operator << (std::ostream & os, const AsymmetricQuadraticNorm<TS,VD> & norm){
+    return os << "{" << norm.m << "," << norm.w << "}";
+}
+
 }
 
 #endif /* AsymmetricQuadraticNorm_h */

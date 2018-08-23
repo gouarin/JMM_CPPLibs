@@ -42,6 +42,8 @@ vector_space< SymmetricMatrix<TComponent, VDimension>, TComponent>
     template<typename T> ComponentType
     Norm(const Vector<T, Dimension> & u) const {return sqrt(SquaredNorm(u));}
     
+    VectorType Gradient(const VectorType & u) const {return operator*(u)/Norm(u);}
+    
     template<typename T> bool
     IsAcute(const Vector<T, Dimension> & u, const Vector<T, Dimension> & v) const {
         return ScalarProduct(u, v)>=0;}
