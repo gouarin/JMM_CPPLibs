@@ -6,7 +6,7 @@
 #define BaseIO_h
 
 #include <map>
-#include "Output/IO.h"
+#include "IO.h"
 
 /**
  A common base for Python and Mathematica IO.

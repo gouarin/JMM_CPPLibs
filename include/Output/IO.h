@@ -12,10 +12,10 @@
 
 #include <string>
 #include <set>
-#include "Output/ExceptionMacro.h"
-#include "LinearAlgebra/ArrayType.h"
-#include "Output/EnumToString.h"
-#include "DataStructures/RedeclareTypesMacro.h"
+#include "ExceptionMacro.h"
+#include "../LinearAlgebra/ArrayType.h"
+#include "EnumToString.h"
+#include "../DataStructures/RedeclareTypesMacro.h"
 
 
 #ifndef __IgnoreTrailingSingletonDimensions
@@ -80,7 +80,6 @@ template<typename Base> struct IO_ : Base {
     template<size_t VD> using DimType = typename Superclass::template DimType<VD>;
     
     using Base::Base;
-    ~IO_();
     
     typedef _Msg<false,IO_> Msg;
     typedef _Msg<true,IO_> WarnMsg;
