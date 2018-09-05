@@ -1,0 +1,13 @@
+# JMM_CPPLibs cmake module
+# This module sets the following variables in your project::
+#
+#   JMM_CPPLibs_FOUND - true if JMM_CPPLibs found on the system
+#   JMM_CPPLibs_INCLUDE_DIRS - the directory containing JMM_CPPLibs headers
+#   JMM_CPPLibs_LIBRARY - empty
+
+@PACKAGE_INIT@
+
+if(NOT TARGET @PROJECT_NAME@)
+  include("${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@Targets.cmake")
+  get_target_property(@PROJECT_NAME@_INCLUDE_DIRS JMM_CPPLibs INTERFACE_INCLUDE_DIRECTORIES)
+endif()

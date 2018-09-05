@@ -11,7 +11,7 @@
 #include <map>
 #include <fstream>
 #include <sstream>
-#include "Output/BaseIO.h"
+#include "BaseIO.h"
 
 /*
 A simple interface for making Mathematica data available to the c++ code. 
