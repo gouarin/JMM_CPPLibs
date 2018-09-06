@@ -22,12 +22,16 @@
  constexp typeof(A::d) B::d
  */
 
+/*
 #define FromContainingClass(x) ContainingClass:: x
 #define FromSuperclass(x) Superclass:: x
 #define FromTraits(x) Traits:: x
+*/
 
+#define insertdd(a,b) a :: b
 
-#define Redeclare1Type(From,__a) typedef typename From(__a) __a;
+#define Redeclare1Type(From,__a) typedef typename insertdd(From,__a) __a;
+//#define Redeclare1Type(From,__a) typedef typename From(__a) __a;
 #define Redeclare2Types(From,__a,...) Redeclare1Type(From,__a) Redeclare1Type(From,__VA_ARGS__)
 #define Redeclare3Types(From,__a,...) Redeclare1Type(From,__a) Redeclare2Types(From,__VA_ARGS__)
 #define Redeclare4Types(From,__a,...) Redeclare1Type(From,__a) Redeclare3Types(From,__VA_ARGS__)
@@ -36,8 +40,8 @@
 #define Redeclare7Types(From,__a,...) Redeclare1Type(From,__a) Redeclare6Types(From,__VA_ARGS__)
 #define Redeclare8Types(From,__a,...) Redeclare1Type(From,__a) Redeclare7Types(From,__VA_ARGS__)
 
-
-#define Redeclare1Constant(From,__a) static constexpr decltype(From(__a)) __a = From(__a);
+#define Redeclare1Constant(From,__a) static constexpr decltype(insertdd(From,__a)) __a = insertdd(From,__a);
+//#define Redeclare1Constant(From,__a) static constexpr decltype(From(__a)) __a = From(__a);
 #define Redeclare2Constants(From,__a,...) Redeclare1Constant(From,__a) Redeclare1Constant(From,__VA_ARGS__)
 #define Redeclare3Constants(From,__a,...) Redeclare1Constant(From,__a) Redeclare2Constants(From,__VA_ARGS__)
 #define Redeclare4Constants(From,__a,...) Redeclare1Constant(From,__a) Redeclare3Constants(From,__VA_ARGS__)

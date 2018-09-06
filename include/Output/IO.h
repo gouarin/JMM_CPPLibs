@@ -75,7 +75,8 @@ template<> char const * enumStrings<TraitsIO::SetterTag>::data[] = {"User","Comp
 
 template<typename Base> struct IO_ : Base {
     typedef Base Superclass;
-    Redeclare5Types(FromSuperclass,KeyType,KeyCRef,DiscreteType,ScalarType,ArrayOrdering);
+//    Redeclare5Types(FromSuperclass,KeyType,KeyCRef,DiscreteType,ScalarType,ArrayOrdering);
+    Redeclare5Types(Superclass,KeyType,KeyCRef,DiscreteType,ScalarType,ArrayOrdering);
     template<typename TC, size_t VD> using Array = typename Superclass::template Array<TC,VD>;
     template<size_t VD> using DimType = typename Superclass::template DimType<VD>;
     
