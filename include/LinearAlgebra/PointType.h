@@ -16,7 +16,7 @@ PointBase<TComponent,VDimension>
     static const int Dimension = VDimension;
     typedef PointBase<TComponent,VDimension> PointBaseType;
     
-    template<typename ...T,typename dummy = typename std::enable_if<sizeof...(T)==Dimension>::type >
+    template<typename ...T>//,typename dummy = typename std::enable_if<sizeof...(T)==Dimension>::type >
     constexpr Point(T... t):PointBaseType{t...}{};
 
 //    typedef typename PointBaseType::DataType DataType;
