@@ -29,23 +29,24 @@
 */
 
 #define insertdd(a,b) a :: b
+#define EXPAND(...) __VA_ARGS__
 
 #define Redeclare1Type(From,__a) typedef typename insertdd(From,__a) __a;
 //#define Redeclare1Type(From,__a) typedef typename From(__a) __a;
-#define Redeclare2Types(From,__a,...) Redeclare1Type(From,__a) Redeclare1Type(From,__VA_ARGS__)
-#define Redeclare3Types(From,__a,...) Redeclare1Type(From,__a) Redeclare2Types(From,__VA_ARGS__)
-#define Redeclare4Types(From,__a,...) Redeclare1Type(From,__a) Redeclare3Types(From,__VA_ARGS__)
-#define Redeclare5Types(From,__a,...) Redeclare1Type(From,__a) Redeclare4Types(From,__VA_ARGS__)
-#define Redeclare6Types(From,__a,...) Redeclare1Type(From,__a) Redeclare5Types(From,__VA_ARGS__)
-#define Redeclare7Types(From,__a,...) Redeclare1Type(From,__a) Redeclare6Types(From,__VA_ARGS__)
-#define Redeclare8Types(From,__a,...) Redeclare1Type(From,__a) Redeclare7Types(From,__VA_ARGS__)
+#define Redeclare2Types(From,__a,...) Redeclare1Type(From,__a) EXPAND(Redeclare1Type(From,__VA_ARGS__))
+#define Redeclare3Types(From,__a,...) Redeclare1Type(From,__a) EXPAND(Redeclare2Types(From,__VA_ARGS__))
+#define Redeclare4Types(From,__a,...) Redeclare1Type(From,__a) EXPAND(Redeclare3Types(From,__VA_ARGS__))
+#define Redeclare5Types(From,__a,...) Redeclare1Type(From,__a) EXPAND(Redeclare4Types(From,__VA_ARGS__))
+#define Redeclare6Types(From,__a,...) Redeclare1Type(From,__a) EXPAND(Redeclare5Types(From,__VA_ARGS__))
+#define Redeclare7Types(From,__a,...) Redeclare1Type(From,__a) EXPAND(Redeclare6Types(From,__VA_ARGS__))
+#define Redeclare8Types(From,__a,...) Redeclare1Type(From,__a) EXPAND(Redeclare7Types(From,__VA_ARGS__))
 
 #define Redeclare1Constant(From,__a) static constexpr decltype(insertdd(From,__a)) __a = insertdd(From,__a);
 //#define Redeclare1Constant(From,__a) static constexpr decltype(From(__a)) __a = From(__a);
-#define Redeclare2Constants(From,__a,...) Redeclare1Constant(From,__a) Redeclare1Constant(From,__VA_ARGS__)
-#define Redeclare3Constants(From,__a,...) Redeclare1Constant(From,__a) Redeclare2Constants(From,__VA_ARGS__)
-#define Redeclare4Constants(From,__a,...) Redeclare1Constant(From,__a) Redeclare3Constants(From,__VA_ARGS__)
-#define Redeclare5Constants(From,__a,...) Redeclare1Constant(From,__a) Redeclare4Constants(From,__VA_ARGS__)
+#define Redeclare2Constants(From,__a,...) Redeclare1Constant(From,__a) EXPAND(Redeclare1Constant(From,__VA_ARGS__))
+#define Redeclare3Constants(From,__a,...) Redeclare1Constant(From,__a) EXPAND(Redeclare2Constants(From,__VA_ARGS__))
+#define Redeclare4Constants(From,__a,...) Redeclare1Constant(From,__a) EXPAND(Redeclare3Constants(From,__VA_ARGS__))
+#define Redeclare5Constants(From,__a,...) Redeclare1Constant(From,__a) EXPAND(Redeclare4Constants(From,__VA_ARGS__))
 
 
 #endif /* RedeclareTypesMacro_h */
