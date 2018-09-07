@@ -36,14 +36,14 @@ auto PythonIO::PyGetArray(KeyCRef key) const -> ndarray {
 
 std::string PythonIO::GetComputedKeys() const {
     std::ostringstream oss;
-    oss << "(";
+    oss << "[";
     for(const auto & a : rawElems){
         if(a.second.setter == SetterTag::Compute) {
-            oss << "(" << a.first << "," <<
+            oss << "['" << a.first << "','" <<
             (a.second.IsString() ? "string" : a.second.IsScalar() ? "float" : "array")
-            << "),";}
+            << "'],";}
     }
-    oss << ")";
+    oss << "]";
     return oss.str();
 }
 #endif /* PythonIO_hxx */
