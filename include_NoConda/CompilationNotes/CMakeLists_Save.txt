@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.1)
 project(JMM_CPPLibs)
 
-set(JMM_CPPLibs_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/JMM_CPPLibs) #Changed 21/9/18 by Mirebeau (include->JMM_CPPLibs)
+set(JMM_CPPLibs_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 # Versionning
 # ===========
@@ -29,7 +29,10 @@ target_include_directories(JMM_CPPLibs INTERFACE
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 
-install(TARGETS JMM_CPPLibs EXPORT ${PROJECT_NAME}-targets) #Changed 21/9/18 by Mirebeau (include->JMM_CPPLibs) 
+install(TARGETS JMM_CPPLibs
+        EXPORT ${PROJECT_NAME}-targets)
+
+install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME})
 
 # Makes the project importable from the build directory
 export(EXPORT ${PROJECT_NAME}-targets

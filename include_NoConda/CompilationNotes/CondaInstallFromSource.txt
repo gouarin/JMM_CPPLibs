@@ -1,0 +1,11 @@
+I - Dans l'interface de CMake
+
+CMAKE_INSTALL_PREFIX -> /Users/mirebeau/anaconda3/envs/testhfm
+
+
+
+II - Ajouter à cmake_install.cmake, dans le directory build, les lignes suivantes.
+
+if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include/JMM_CPPLibs" TYPE DIRECTORY FILES "/Users/mirebeau/Dropbox/Programmes/Distributed/JMM_CPPLibs/JMM_CPPLibs/")
+endif()
