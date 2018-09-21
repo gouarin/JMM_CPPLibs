@@ -118,35 +118,39 @@ auto BaseIO::CreateElement(KeyCRef key) -> RawElement & {
     return it->second;
 }
 
-template<typename T> std::pair<std::vector<BaseIO::DiscreteType>, const T*> BaseIO::GetDimsPtr(KeyCRef key) const {
+template<typename T> auto BaseIO::GetDimsPtr(KeyCRef key) const
+-> std::pair<std::vector<BaseIO::DiscreteType>, FCI<T,const ScalarType> > {
     const auto & raw = GetRaw(key);
-    if(raw.IsString()) {ExceptionMacro("IO error : key " << key << " is a string, not a numerical field.");}
+    if(raw.IsString()) {ExceptionMacro("IO error : key " << key
+									   << " is a string, not a numerical field.");}
     auto dims = raw.dims;
-    static_assert(sizeof(T) % sizeof(ScalarType) == 0, "Field is not made of scalars.");
-    const DiscreteType sizeRatio = sizeof(T) / sizeof(ScalarType);
+	typedef FCI<T,const ScalarType> FCIT;
     if (!std::is_same<T, ScalarType>::value) {
-        if (dims.empty() || dims.back() != sizeRatio) // Row major
-            ExceptionMacro("BaseIO input error first dimension " << (dims.empty() ? 0 : dims.back()) << " of field "
-                           << key << " does not match expected value " << sizeRatio << ".");
+		if (dims.empty() || dims.back() != FCIT::nComp()) // Row major
+            ExceptionMacro("BaseIO input error first dimension "
+						   << (dims.empty() ? 0 : dims.back()) << " of field "
+                           << key << " does not match expected value " << FCIT::nComp() << ".");
         dims.pop_back();
     }
-    return {dims, reinterpret_cast<const T*>(&raw.data[0]) };
+	return {dims, FCIT(&raw.data[0]) };
 }
 
 template<typename T, size_t d, typename F> void BaseIO::Set(KeyCRef key, DimType<d> dims, const F & vals) {
-    static_assert(sizeof(T) % sizeof(ScalarType) == 0, "Type is not built of scalars.");
-    const ScalarType sizeRatio = sizeof(T) / sizeof(ScalarType);
+//    static_assert(sizeof(T) % sizeof(ScalarType) == 0, "Type is not built of scalars.");
+//    const ScalarType sizeRatio = sizeof(T) / sizeof(ScalarType);
     const DiscreteType size = dims.ProductOfCoordinates();
+	typedef FCI<T, ScalarType> FCIT;
     
     RawElement & raw = CreateElement(key);
-    raw.data.resize(sizeRatio*size);
-    
-    T* input = reinterpret_cast<T*>(&raw.data[0]);
-    for (DiscreteType i = 0; i<size; ++i)
-        input[i] = vals(i);
+	raw.data.resize(FCIT::nComp()*size);
+	
+	FCIT input{&raw.data[0]};
+//    T* input = reinterpret_cast<T*>(&raw.data[0]);
+    for (DiscreteType i = 0; i<size; ++i, ++input)
+        input.Set(vals(i));
     
     for(auto dim : dims) raw.dims.push_back(dim);
-    if(!std::is_same<T, ScalarType>::value) raw.dims.push_back(sizeRatio); // Row major
+    if(!std::is_same<T, ScalarType>::value) raw.dims.push_back(FCIT::nComp()); // Row major
 }
 
 

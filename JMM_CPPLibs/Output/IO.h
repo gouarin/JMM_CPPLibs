@@ -100,11 +100,10 @@ template<typename Base> struct IO_ : Base {
 protected:
     template<typename V> static V TransposeDims(const V &);
     template<typename V> static V ReverseDims(const V &);
-    template<typename T, size_t d> struct TransposeVals;
-    template<typename T, size_t d> struct ReverseVals;
-    
-    template<typename T, size_t d> struct TransposeReverseVals; // Transpose(Reverse()) composition
-    template<typename T, size_t d> struct ReverseTransposeVals;
+    template<typename T, size_t d, typename TI = const T *> struct TransposeVals;
+    template<typename T, size_t d, typename TI = const T *> struct ReverseVals;
+    template<typename T, size_t d, typename TI = const T *> struct TransposeReverseVals; // Transpose(Reverse())
+    template<typename T, size_t d, typename TI = const T *> struct ReverseTransposeVals;
     
     template<typename T, size_t d> void Set(KeyCRef, DimType<d>, const T*);
 };

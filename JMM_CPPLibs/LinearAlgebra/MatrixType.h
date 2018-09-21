@@ -62,8 +62,6 @@ vector_space< Matrix<TComponent,VRows,VColumns>, TComponent>
     template<typename ...T,typename dummy = typename std::enable_if<sizeof...(T)==InternalDimension>::type >
     constexpr Matrix(T... t):data(t...){};
 
-//    typedef typename Vector<ComponentType,Rows*Columns>::DataType DataType;
-//    constexpr Matrix(const DataType & data_):data(data_){};
     Matrix(){};
 protected:
     static size_t LinearizedIndex(size_t i, size_t j) {return i*Columns+j;} // Row major

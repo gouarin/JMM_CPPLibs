@@ -3,8 +3,9 @@
 
 #ifndef VectorPairType_h
 #define VectorPairType_h
-
 #include "FriendOperators.h"
+#include "../DataStructures/GetComponent.h"
+
 namespace LinearAlgebra {
 template<typename TV0, typename TV1, typename TComponent = typename TV0::ComponentType>
 struct VectorPair : std::pair<TV0,TV1>,
@@ -23,4 +24,8 @@ vector_space< VectorPair<TV0, TV1, TComponent>, TComponent> {
 };
 
 }
+
+template<typename TA, typename TB, typename C>
+struct GetComponent<LinearAlgebra::VectorPair<TA,TB>, C>
+: GetComponent<std::pair<TA,TB>, C> {};
 #endif /* VectorPairType_h */

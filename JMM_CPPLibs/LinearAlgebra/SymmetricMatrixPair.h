@@ -88,7 +88,7 @@ namespace LinearAlgebra {
         Part1(v) = m1*Part1(u);
         return v;
     }
-    
+	
 protected:
     static_assert(std::is_same<ComponentType, typename TSymmetricMatrix1::ComponentType>::value && std::is_same<ComponentType, typename VectorType0::ComponentType>::value && std::is_same<ComponentType, typename VectorType1::ComponentType>::value,
                   "ComponentTypes must match");

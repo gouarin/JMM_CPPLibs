@@ -7,6 +7,7 @@
 
 #include <map>
 #include "IO.h"
+#include "JMM_CPPLibs/DataStructures/FromComponentsIterator.h"
 
 /**
  A common base for Python and Mathematica IO.
@@ -22,7 +23,8 @@ struct BaseIO : TraitsIO {
     BaseIO(){};
     void UsageReport();
 protected:
-    template<typename T> std::pair<std::vector<DiscreteType>,const T*> GetDimsPtr(KeyCRef) const;
+	template<typename TT,typename TC> using FCI=FromComponentsIterator<TT,TC>;
+    template<typename T> std::pair<std::vector<DiscreteType>,FCI<T,const ScalarType> > GetDimsPtr(KeyCRef) const;
     template<typename T, size_t d, typename F> void Set(KeyCRef, DimType<d>, const F &);
     
     struct RawElement;
