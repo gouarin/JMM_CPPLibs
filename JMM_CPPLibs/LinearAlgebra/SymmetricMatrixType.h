@@ -5,6 +5,7 @@
 #define LiftedFastMarching_SymmetricMatrixType_h
 
 #include "MatrixType.h"
+#include "../DataStructures/GetComponent.h"
 
 namespace LinearAlgebra {
     
@@ -82,11 +83,6 @@ vector_space< SymmetricMatrix<TComponent, VDimension>, TComponent>
     constexpr SymmetricMatrix(T... t):data(t...){};
 	
     SymmetricMatrix(){};
-
-	// Componentwise access, required for some export functions
-	constexpr size_t size() const noexcept {return data.size();}
-	const ComponentType & operator[](size_t i) const {return data[i];}
-	ComponentType & operator[](size_t i) {return data[i];}
 protected:
     const ComponentType & coef(int i, int j) const {return this->operator()(i,j);}
 };
@@ -111,7 +107,14 @@ protected:
     }
 
 #include "Implementation/SymmetricMatrixType.hxx"
-    
 } // end namespace LinearAlgebra
+
+template<typename C, size_t VD>
+struct GetComponent<LinearAlgebra::SymmetricMatrix<C,VD>, C> {
+	typedef LinearAlgebra::SymmetricMatrix<C,VD> T;
+	static constexpr size_t size() {return T().data.size();}
+	static const C & Get(const T & t, size_t i) {assert(i<size()); return t.data[i];}
+	static C & Get(T & t, size_t i) {assert(i<size()); return t.data[i];}
+};
 
 #endif

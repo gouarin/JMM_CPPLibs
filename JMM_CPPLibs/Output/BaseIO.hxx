@@ -136,8 +136,6 @@ template<typename T> auto BaseIO::GetDimsPtr(KeyCRef key) const
 }
 
 template<typename T, size_t d, typename F> void BaseIO::Set(KeyCRef key, DimType<d> dims, const F & vals) {
-//    static_assert(sizeof(T) % sizeof(ScalarType) == 0, "Type is not built of scalars.");
-//    const ScalarType sizeRatio = sizeof(T) / sizeof(ScalarType);
     const DiscreteType size = dims.ProductOfCoordinates();
 	typedef FCI<T, ScalarType> FCIT;
     
@@ -145,7 +143,6 @@ template<typename T, size_t d, typename F> void BaseIO::Set(KeyCRef key, DimType
 	raw.data.resize(FCIT::nComp()*size);
 	
 	FCIT input{&raw.data[0]};
-//    T* input = reinterpret_cast<T*>(&raw.data[0]);
     for (DiscreteType i = 0; i<size; ++i, ++input)
         input.Set(vals(i));
     
