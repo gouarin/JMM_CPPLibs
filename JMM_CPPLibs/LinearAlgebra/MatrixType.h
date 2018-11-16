@@ -57,15 +57,15 @@ vector_space< Matrix<TComponent,VRows,VColumns>, TComponent>
     static Matrix Random(); // random entries uniform in [-1,1]
     template<typename T> static Matrix CastCoordinates(const Matrix<T,Rows,Columns> &);
 
-    Vector<ComponentType,Rows*Columns> data;
     static const size_t InternalDimension = Rows*Columns;
-    template<typename ...T,typename dummy = typename std::enable_if<sizeof...(T)==InternalDimension>::type >
+	Vector<ComponentType, InternalDimension> data;
+	template<typename ...T,typename dummy = typename std::enable_if<sizeof...(T)==InternalDimension>::type >
     constexpr Matrix(T... t):data(t...){};
 
     Matrix(){};
 protected:
     static size_t LinearizedIndex(size_t i, size_t j) {return i*Columns+j;} // Row major
-    template<size_t d, typename Dummy> struct Det;
+//    template<size_t d, typename Dummy> struct Det;
 };
 
 // Row based printing.

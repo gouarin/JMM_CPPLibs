@@ -109,15 +109,16 @@ template<typename TS, typename TD, size_t VD> typename BasisReduction<TS,TD,VD>:
 BasisReduction<TS,TD,VD>::TensorDecomposition(const SymmetricMatrixType & diff){
     SuperbaseType sb=CanonicalSuperBase();
     ObtuseSuperbase(diff, sb);
-    return TensorDecompositionHelper<VD>::Get(diff,sb);
+    return TensorDecompositionHelper::Get(diff,sb);
 }
 
 template<typename TS, typename TD, size_t VD> template<typename Dummy>
-struct BasisReduction<TS, TD, VD>::TensorDecompositionHelper<1,Dummy> {
+struct BasisReduction<TS, TD, VD>::TensorDecompositionHelper_<1,Dummy> {
     static_assert(VD==1,"Inconsistent dimensions");
     typedef BasisReduction<TS, TD, VD> T;
-    static T::TensorDecompositionType Get(const T::SymmetricMatrixType & diff, const T::SuperbaseType &){
-        T::TensorDecompositionType decomp;
+	Redeclare3Types(T, TensorDecompositionType, SymmetricMatrixType, SuperbaseType);
+    static TensorDecompositionType Get(const SymmetricMatrixType & diff, const SuperbaseType &){
+        TensorDecompositionType decomp;
         decomp.offsets[0][0]=1;
         decomp.weights[0] = diff(0,0);
         return decomp;
@@ -125,11 +126,12 @@ struct BasisReduction<TS, TD, VD>::TensorDecompositionHelper<1,Dummy> {
 };
     
 template<typename TS, typename TD, size_t VD> template<typename Dummy>
-struct BasisReduction<TS, TD, VD>::TensorDecompositionHelper<2,Dummy> {
+struct BasisReduction<TS, TD, VD>::TensorDecompositionHelper_<2,Dummy> {
     static_assert(VD==2,"Inconsistent dimensions");
     typedef BasisReduction<TS, TD, VD> T;
-    static T::TensorDecompositionType Get(const T::SymmetricMatrixType & diff, const T::SuperbaseType & sb){
-        T::TensorDecompositionType decomp;
+	Redeclare3Types(T, TensorDecompositionType, SymmetricMatrixType, SuperbaseType);
+    static TensorDecompositionType Get(const SymmetricMatrixType & diff, const SuperbaseType & sb){
+        TensorDecompositionType decomp;
         for(int i=0; i<3; ++i){
             int j=(i+1)%3,k=(i+2)%3;
             decomp.offsets[i] = LinearAlgebra::Perp(sb[i]);
@@ -140,11 +142,12 @@ struct BasisReduction<TS, TD, VD>::TensorDecompositionHelper<2,Dummy> {
 };
 
 template<typename TS, typename TD, size_t VD> template<typename Dummy>
-struct BasisReduction<TS, TD, VD>::TensorDecompositionHelper<3,Dummy> {
+struct BasisReduction<TS, TD, VD>::TensorDecompositionHelper_<3,Dummy> {
     static_assert(VD==3,"Inconsistent dimensions");
     typedef BasisReduction<TS, TD, VD> T;
-    static T::TensorDecompositionType Get(const T::SymmetricMatrixType & diff, const T::SuperbaseType & sb){
-        T::TensorDecompositionType decomp;
+	Redeclare3Types(T, TensorDecompositionType, SymmetricMatrixType, SuperbaseType);
+    static TensorDecompositionType Get(const SymmetricMatrixType & diff, const SuperbaseType & sb){
+        TensorDecompositionType decomp;
         auto offsetIt = decomp.offsets.begin();
         auto weightIt = decomp.weights.begin();
         for(int i=0; i<4; ++i)

@@ -222,6 +222,7 @@ SymmetricMatrix<TC, VD>::Inverse() const {
             m/=det; return m;
         default:
             assert(false);
+			ExceptionMacro("SymmetricMatrix::Inverse() error : unsupported dimension");
     }
 }
 

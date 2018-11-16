@@ -12,6 +12,7 @@
 #include <vector>
 #include <algorithm>
 #include "PointType.h"
+#include "../DataStructures/RedeclareTypesMacro.h"
 
 
 namespace LinearAlgebra {
@@ -33,10 +34,10 @@ struct Array : public std::vector<TComponent> {
     bool InRange(const IndexType & index) const {
         for(size_t i=0; i<Dimension; ++i) if(index[i]<0 || index[i]>=dims[i]) return false;
         return true;}
-    
-    auto operator() (const IndexType & index) ->decltype((*this)[0]) {assert(CheckDims());
+	Redeclare2Types(Superclass, reference, const_reference);
+    reference operator() (const IndexType & index) {assert(CheckDims()); //->decltype((*this)[0])
         return this->operator[](Convert(index));}
-    auto operator() (const IndexType & index) const ->decltype((*this)[0]) {assert(CheckDims());
+    const_reference operator() (const IndexType & index) const {assert(CheckDims());
         return this->operator[](Convert(index));}
     
     void PrintSelf(std::ostream & os) const;

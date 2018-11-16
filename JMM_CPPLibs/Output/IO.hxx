@@ -55,7 +55,7 @@ typename Base::template Array<T, d> IO_<Base>::GetArray(KeyCRef key) const {
     
     switch (this->arrayOrdering) {
         case ArrayOrdering::RowMajor: {
-			for(size_t i=0; i<result.size(); ++i) result[i] = dimsPtr.second[i];
+			for(size_t i=0; i<result.size(); ++i) result[i] = dimsPtr.second[(long)i];
 			break;}
         case ArrayOrdering::YXZ_RowMajor: {
             const TransposeVals<T,d,TI> TrVals(result.dims, dimsPtr.second);
@@ -84,6 +84,9 @@ auto IO_<Base>::GetDimensions(KeyCRef key) const -> std::vector<DiscreteType> {
         case ArrayOrdering::YXZ_RowMajor: return TransposeDims(dims);
         case ArrayOrdering::ColumnMajor: return ReverseDims(dims);
         case ArrayOrdering::YXZ_ColumnMajor: return TransposeDims(ReverseDims(dims));
+		default:
+			assert(false);
+			ExceptionMacro("Unrecognized array ordering");
     }
 }
 

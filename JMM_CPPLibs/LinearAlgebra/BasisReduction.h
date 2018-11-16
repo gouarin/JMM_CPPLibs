@@ -41,7 +41,8 @@ struct BasisReduction {
     static TensorDecompositionType TensorDecomposition(const SymmetricMatrixType &);
     static int maxIt;
 protected:
-    template<size_t VD, typename Dummy=void> struct TensorDecompositionHelper;
+    template<size_t VD, typename Dummy> struct TensorDecompositionHelper_;
+	typedef TensorDecompositionHelper_<Dimension, void> TensorDecompositionHelper;
 };
 template<typename TS,typename TD,size_t VD> int BasisReduction<TS,TD,VD>::maxIt=200;
 #include "BasisReduction.hpp"

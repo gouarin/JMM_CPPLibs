@@ -40,7 +40,7 @@ bool BaseIO::HasField(KeyCRef key) const {
 
 bool BaseIO::EraseField(KeyCRef key) {
     unused.erase(key);
-    return rawElems.erase(key);
+    return rawElems.erase(key)!=0;
 }
 
 std::string BaseIO::GetString(KeyCRef key) const {
@@ -147,7 +147,7 @@ template<typename T, size_t d, typename F> void BaseIO::Set(KeyCRef key, DimType
         input.Set(vals(i));
     
     for(auto dim : dims) raw.dims.push_back(dim);
-    if(!std::is_same<T, ScalarType>::value) raw.dims.push_back(FCIT::nComp()); // Row major
+    if(!std::is_same<T, ScalarType>::value) raw.dims.push_back((DiscreteType)FCIT::nComp()); // Row major
 }
 
 

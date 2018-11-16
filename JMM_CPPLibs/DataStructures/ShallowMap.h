@@ -50,7 +50,7 @@ template<typename TIndex, typename TValue, bool hasTrivialConstructor=true> stru
         else {
             if(unallocated.empty()){
                 j=(IndexType)values.size();
-                Construct<>::Emplace(values);
+                Construct::Emplace(values);
 //                values.emplace_back();
             } else {
                 j=unallocated.back();
@@ -83,16 +83,17 @@ protected:
     std::vector<ValueType> values;
     ValueType dummyValue;
     static constexpr IndexType BadIndex() {return std::numeric_limits<IndexType>::max();}
-    template<bool b=hasTrivialConstructor,typename Dummy=void> struct Construct;
+    template<bool hasTrivialConstructor_,typename Dummy> struct Construct_;
+	typedef Construct_<hasTrivialConstructor, void> Construct;
 };
 
 template<typename TI, typename TV, bool hTC> template<typename Dummy>
-struct ShallowMap<TI,TV,hTC>::Construct<true,Dummy>{
+struct ShallowMap<TI,TV,hTC>::Construct_<true,Dummy>{
     static void Emplace(std::vector<TV> & values){values.emplace_back();}
 };
 
 template<typename TI, typename TV, bool hTC> template<typename Dummy>
-struct ShallowMap<TI,TV,hTC>::Construct<false,Dummy>{
+struct ShallowMap<TI,TV,hTC>::Construct_<false,Dummy>{
     static void Emplace(std::vector<TV> & values){assert(false);}
 };
 

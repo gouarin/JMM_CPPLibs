@@ -47,8 +47,8 @@ FileIO::FileIO(std::string inputPrefix, std::string outputPrefix_):outputPrefix(
                     ExceptionMacro("FileIO error : invalid dimension for key " << key << " in input format file.");
                 size*=dimi;
             }
-            raw.data.push_back(pos);
-            raw.data.push_back(pos+size);
+            raw.data.push_back(ScalarType(pos));
+            raw.data.push_back(ScalarType(pos+size));
             pos+=size;
         }
         nextLine(ifs);
@@ -64,7 +64,7 @@ FileIO::FileIO(std::string inputPrefix, std::string outputPrefix_):outputPrefix(
         ExceptionMacro("FileIO error : input data file could not be opened " << inputPrefix << "_Data.dat");
     
     ifs.seekg(0, ifs.end);
-    if(ifs.tellg()!=inputData.size()*sizeof(ScalarType))
+    if(size_t(ifs.tellg())!=inputData.size()*sizeof(ScalarType))
         ExceptionMacro("FileIO error : input data file has incorrect size.");
     
     ifs.seekg(0, ifs.beg);

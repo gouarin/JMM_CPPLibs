@@ -112,76 +112,122 @@ CastCoordinates(const Matrix<T,Rows,Columns> & a0) -> Matrix {
     return a;
 }
 
-// -------- Determinant --------
-template<typename TC, size_t VR, size_t VC> template<typename Dummy>
-struct Matrix<TC,VR,VC>::Det<0, Dummy> {
-    typedef Matrix<TC,VR,VC> M;
-    M::ComponentType operator()(const M & m){return TC(1);}
-};
-
-template<typename TC, size_t VR, size_t VC> template<typename Dummy>
-struct Matrix<TC,VR,VC>::Det<1, Dummy> {
-    typedef Matrix<TC,VR,VC> M;
-    M::ComponentType operator()(const M & m){return m(0,0);}
-};
-
-template<typename TC, size_t VR, size_t VC> template<typename Dummy>
-struct Matrix<TC,VR,VC>::Det<2, Dummy> {
-    typedef Matrix<TC,VR,VC> M;
-    M::ComponentType operator()(const M & m){return m(0,0)*m(1,1)-m(1,0)*m(0,1);}
-};
-
-template<typename TC, size_t VR, size_t VC> template<typename Dummy>
-struct Matrix<TC,VR,VC>::Det<3, Dummy> {
-    typedef Matrix<TC,VR,VC> M;
-    M::ComponentType operator()(const M & m){
-        M::ComponentType det=0;
-        for(int i=0; i<3; ++i) det+=m(i,0)*m((i+1)%3,1)*m((i+2)%3,2) - m(i,2)*m((i+1)%3,1)*m((i+2)%3,0);
-        return det;
-    }
-};
-
-template<typename TC, size_t VR, size_t VC> template<size_t n, typename Dummy>
-struct Matrix<TC,VR,VC>::Det {
-    typedef Matrix<TC,VR,VC> M;
-    M::ComponentType operator()(const M & m){
-        // Get largest coefficient, in absolute value
-        assert(!std::numeric_limits<TC>::is_integer);
-        const size_t d=VR;
-        int iMax=0,jMax=0;// Dummy initialization
-        M::ComponentType vMax = TC(0);
-        for(int i=0; i<d; ++i)
-            for(int j=0; j<d; ++j){
-                const ComponentType v = std::abs(m(i,j));
-                if(v>vMax){
-                    iMax=i; jMax=j; vMax=v;
-                }
-            }
-        if(vMax==TC(0)) return TC(0);
-        vMax=m(iMax,jMax);
-        
-        // Pivot
-        Matrix<TC, d-1, d-1> a; a.fill(TC(0));
-        for(int i=0, ia=0; i<d; ++i){
-            if(i==iMax) continue;
-            const ComponentType delta = m(i,jMax)/vMax;
-            for(int j=0, ja=0; j<d; ++j){
-                if(j==jMax) continue;
-                a(ia,ja)=m(i,j)-delta*m(iMax,j);
-                ++ja;
-            }
-            ++ia;
-        }
-        return a.Determinant() *vMax *((iMax+jMax)%2==0 ? 1 : -1);
-    }
-};
 template<typename TC, size_t VR, size_t VC>
 typename Matrix<TC,VR,VC>::ComponentType
 Matrix<TC,VR,VC>::Determinant() const
 {
     static_assert(VR==VC,"Matrix must be square");
-    return Det<VR,void>()(*this);
+	const Matrix & m = *this;
+	switch (VR) {
+	case 0: return ComponentType(1);
+	case 1: return m(0, 0);
+	case 2: return m(0, 0)*m(1, 1) - m(1, 0)*m(0, 1);
+	case 3: {
+		ComponentType det = 0;
+		for (int i = 0; i < 3; ++i) det += m(i, 0)*m((i + 1) % 3, 1)*m((i + 2) % 3, 2) - m(i, 2)*m((i + 1) % 3, 1)*m((i + 2) % 3, 0);
+		return det;
+	}
+	default: {
+		// Get largest coefficient, in absolute value
+		assert(!std::numeric_limits<TC>::is_integer);
+		const size_t d = VR;
+		int iMax = 0, jMax = 0;// Dummy initialization
+		ComponentType vMax = TC(0);
+		for (int i = 0; i < d; ++i)
+			for (int j = 0; j < d; ++j) {
+				const ComponentType v = std::abs(m(i, j));
+				if (v > vMax) {
+					iMax = i; jMax = j; vMax = v;
+				}
+			}
+		if (vMax == ComponentType(0)) return ComponentType(0);
+		vMax = m(iMax, jMax);
+
+		// Pivot
+		const size_t dd = (d > 0 ? d - 1 : 0); // Setting dd=d-1 yields recursive template
+		Matrix<TC, dd, dd> a; a.fill(TC(0));
+		for (int i = 0, ia = 0; i < d; ++i) {
+			if (i == iMax) continue;
+			const ComponentType delta = m(i, jMax) / vMax;
+			for (int j = 0, ja = 0; j < d; ++j) {
+				if (j == jMax) continue;
+				a(ia, ja) = m(i, j) - delta*m(iMax, j);
+				++ja;
+			}
+			++ia;
+		}
+		return a.Determinant() *vMax *((iMax + jMax) % 2 == 0 ? 1 : -1);
+		
+	}
+	}
 }
+
+/*
+// -------- Determinant --------
+
+template<typename TC, size_t VR, size_t VC> template<size_t n, typename Dummy>
+struct Matrix<TC,VR,VC>::Det {
+typedef Matrix<TC,VR,VC> M;
+typename M::ComponentType operator()(const M & m){
+// Get largest coefficient, in absolute value
+assert(!std::numeric_limits<TC>::is_integer);
+const size_t d=VR;
+int iMax=0,jMax=0;// Dummy initialization
+M::ComponentType vMax = TC(0);
+for(int i=0; i<d; ++i)
+for(int j=0; j<d; ++j){
+const ComponentType v = std::abs(m(i,j));
+if(v>vMax){
+iMax=i; jMax=j; vMax=v;
+}
+}
+if(vMax==TC(0)) return TC(0);
+vMax=m(iMax,jMax);
+
+// Pivot
+Matrix<TC, d-1, d-1> a; a.fill(TC(0));
+for(int i=0, ia=0; i<d; ++i){
+if(i==iMax) continue;
+const ComponentType delta = m(i,jMax)/vMax;
+for(int j=0, ja=0; j<d; ++j){
+if(j==jMax) continue;
+a(ia,ja)=m(i,j)-delta*m(iMax,j);
+++ja;
+}
+++ia;
+}
+return a.Determinant() *vMax *((iMax+jMax)%2==0 ? 1 : -1);
+}
+};
+
+template<typename TC, size_t VR, size_t VC> template<typename Dummy>
+struct Matrix<TC,VR,VC>::Det<0, Dummy> {
+typedef Matrix<TC,VR,VC> M;
+typename M::ComponentType operator()(const M & m){return TC(1);}
+};
+
+template<typename TC, size_t VR, size_t VC> template<typename Dummy>
+struct Matrix<TC,VR,VC>::Det<1, Dummy> {
+typedef Matrix<TC,VR,VC> M;
+typename M::ComponentType operator()(const M & m){return m(0,0);}
+};
+
+template<typename TC, size_t VR, size_t VC> template<typename Dummy>
+struct Matrix<TC,VR,VC>::Det<2, Dummy> {
+typedef Matrix<TC,VR,VC> M;
+typename M::ComponentType operator()(const M & m){return m(0,0)*m(1,1)-m(1,0)*m(0,1);}
+};
+
+template<typename TC, size_t VR, size_t VC> template<typename Dummy>
+struct Matrix<TC,VR,VC>::Det<3, Dummy> {
+typedef Matrix<TC,VR,VC> M;
+typename M::ComponentType operator()(const M & m){
+M::ComponentType det=0;
+for(int i=0; i<3; ++i) det+=m(i,0)*m((i+1)%3,1)*m((i+2)%3,2) - m(i,2)*m((i+1)%3,1)*m((i+2)%3,0);
+return det;
+}
+};
+*/
 
 
 // --------- Solve and inverse ---------
