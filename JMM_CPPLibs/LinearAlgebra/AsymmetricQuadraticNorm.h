@@ -21,9 +21,9 @@ struct AsymmetricQuadraticNorm {
     static const size_t Dimension = VDimension;
     
     typedef Vector<ScalarType, Dimension> VectorType;
-    typedef SymmetricMatrix<ScalarType, Dimension> SymmetriMatrixType;
+    typedef SymmetricMatrix<ScalarType, Dimension> SymmetricMatrixType;
     
-    SymmetriMatrixType m;
+    SymmetricMatrixType m;
     VectorType w;
     
     ScalarType Norm(const VectorType & v) const {
@@ -31,9 +31,9 @@ struct AsymmetricQuadraticNorm {
         return sqrt(m.SquaredNorm(v)+scal*scal);
     }
     
-     //Positive multiple of gradient
+    ///Positive multiple of gradient
     VectorType MGrad(const VectorType & v) const {return m*v+ScalPos(v)*w;}
-    VectorType Grad(const VectorType & v) const {
+    VectorType Gradient(const VectorType & v) const {
         const VectorType g = MGrad(v);
         const ScalarType squaredNorm = g.ScalarProduct(v);
         return g/sqrt(squaredNorm);
@@ -42,7 +42,7 @@ struct AsymmetricQuadraticNorm {
     // Equivalent to u.Grad(v)>=0 && v.Grad(u)>=0.
     bool IsAcute(const VectorType & u, const VectorType & v) const {
         const ScalarType
-        muv = m.ScalarProduct(u,v), wu = w.ScalarProduct(v), wv=w.ScalarProduct(v);
+        muv = m.ScalarProduct(u,v), wu = w.ScalarProduct(u), wv=w.ScalarProduct(v);
         return muv+std::min(wu*std::max(wv,0.),wv*std::max(wu,0.)) >= 0.;
     }
 #pragma todo("Implement dual")
@@ -50,8 +50,14 @@ struct AsymmetricQuadraticNorm {
     bool IsDefinite() const {return m.IsDefinite();}
     
 protected:
-    ScalarType ScalPos(const ScalarType & v) const {return std::max(w.ScalarProduct(v),0);}
+    ScalarType ScalPos(const VectorType & v) const {return std::max(w.ScalarProduct(v),ScalarType(0));}
 };
+    
+template<typename TS, size_t VD>
+std::ostream & operator << (std::ostream & os, const AsymmetricQuadraticNorm<TS,VD> & norm){
+    return os << "{" << norm.m << "," << norm.w << "}";
+}
+
 }
 
 #endif /* AsymmetricQuadraticNorm_h */

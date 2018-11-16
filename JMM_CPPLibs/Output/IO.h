@@ -12,10 +12,10 @@
 
 #include <string>
 #include <set>
-#include "ExceptionMacro.h"
+#include "../Macros/Exception.h"
 #include "../LinearAlgebra/ArrayType.h"
 #include "EnumToString.h"
-#include "../DataStructures/RedeclareTypesMacro.h"
+#include "../Macros/RedeclareTypes.h"
 
 
 #ifndef __IgnoreTrailingSingletonDimensions

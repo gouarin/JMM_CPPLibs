@@ -8,6 +8,7 @@ set(DataStructures_Dir "${JMM_CPPLibs_Dir}/DataStructures")
 set(Macros_Dir "${JMM_CPPLibs_Dir}/Macros")
 
 set(LinearAlgebra_Headers
+	${LinearAlgebra_Dir}/HopfLaxMinimize.h
 	${LinearAlgebra_Dir}/AffineTransformType.h
 	${LinearAlgebra_Dir}/ArrayType.h
 	${LinearAlgebra_Dir}/AsymmetricQuadraticNorm.h
@@ -31,8 +32,6 @@ set(LinearAlgebra_Headers
 set(Output_Headers
 	${Output_Dir}/BaseIO.h
 	${Output_Dir}/EnumToString.h
-	${Output_Dir}/ExceptionMacro.h
-	${Output_Dir}/ExportMacros.h
 	${Output_Dir}/FileIO.h
 	${Output_Dir}/IO.h
 	${Output_Dir}/MathematicaIO.h
@@ -43,11 +42,14 @@ set(Output_Headers
 	)
 
 set(DataStructures_Headers
-	${DataStructures_Dir}/CappedVector.h	${DataStructures_Dir}/RangeAccessor.h	${DataStructures_Dir}/RedeclareTypesMacro.h	${DataStructures_Dir}/ShallowMap.h	${DataStructures_Dir}/VirtualConstIterator.h
+	${DataStructures_Dir}/CappedVector.h	${DataStructures_Dir}/RangeAccessor.h	${DataStructures_Dir}/ShallowMap.h	${DataStructures_Dir}/VirtualConstIterator.h
 	PARENT_SCOPE
 	)
 
 set(Macros_Headers
 	${Macros_Dir}/Expand.h	${Macros_Dir}/PPCat.h	${Macros_Dir}/String.h
+	${Macros_Dir}/Exception.h
+	${Macros_Dir}/ExportArrow.h
+	${Macros_Dir}/RedeclareTypes.h
 	PARENT_SCOPE
 	)

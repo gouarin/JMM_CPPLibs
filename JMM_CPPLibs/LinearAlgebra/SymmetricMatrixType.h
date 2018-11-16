@@ -49,7 +49,9 @@ vector_space< SymmetricMatrix<TComponent, VDimension>, TComponent>
 
     template<typename T> VectorType
     operator*(const Vector<T, Dimension> &) const;
-    
+	
+	VectorType Gradient(const VectorType & u) const {return operator*(u)/Norm(u);}
+	
     ComponentType Trace() const;
     ComponentType Determinant() const;
     SymmetricMatrix Inverse() const;

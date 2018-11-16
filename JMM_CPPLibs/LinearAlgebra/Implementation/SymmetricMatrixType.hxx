@@ -205,7 +205,7 @@ SymmetricMatrix<TC, VD>::Determinant() const {
 template<typename TC, size_t VD>
 SymmetricMatrix<TC, VD>
 SymmetricMatrix<TC, VD>::Inverse() const {
-    if(VD>3) return FromUpperTriangle(static_cast<MatrixType>(*this).Inverse());
+    if(VD>3) return FromUpperTriangle(this->operator MatrixType().Inverse());
     ComponentType det = Determinant();
     SymmetricMatrix  m;
     switch (VD) {

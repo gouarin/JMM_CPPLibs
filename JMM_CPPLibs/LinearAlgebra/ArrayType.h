@@ -12,7 +12,7 @@
 #include <vector>
 #include <algorithm>
 #include "PointType.h"
-#include "../DataStructures/RedeclareTypesMacro.h"
+#include "../Macros/RedeclareTypes.h"
 
 
 namespace LinearAlgebra {

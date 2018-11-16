@@ -9,7 +9,7 @@
 #define FromComponentsIterator_h
 #include <limits>
 #include "../LinearAlgebra/FriendOperators.h"
-#include "RedeclareTypesMacro.h"
+#include "../Macros/RedeclareTypes.h"
 #include "GetComponent.h"
 
 // Transform an iterator to the components of an object type into an iterator to these objects.
