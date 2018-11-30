@@ -31,6 +31,8 @@ include(CMakePackageConfigHelpers)
 
 install(TARGETS JMM_CPPLibs EXPORT ${PROJECT_NAME}-targets) #Changed 21/9/18 by Mirebeau (include->JMM_CPPLibs) 
 
+install(DIRECTORY ${JMM_CPPLibs_INCLUDE_DIR}/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME})
+
 # Makes the project importable from the build directory
 export(EXPORT ${PROJECT_NAME}-targets
        FILE "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake")
